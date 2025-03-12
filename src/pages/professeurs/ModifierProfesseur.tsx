@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "@/components/ui/sonner";
+import { toast } from "sonner";
 import ProfesseurForm from "@/components/professeurs/ProfesseurForm";
 import { Professeur } from "@/components/professeurs/ProfesseursDataTable";
 
