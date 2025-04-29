@@ -92,23 +92,23 @@ export interface RecuPaiement {
 
 // Professeurs
 export const getProfesseurs = (): Professeur[] => {
-  return professeurs;
+  return professeurs as Professeur[];
 };
 
 export const getProfesseurById = (id: string): Professeur | undefined => {
-  return professeurs.find(prof => prof.id === id);
+  return (professeurs as Professeur[]).find(prof => prof.id === id);
 };
 
 export const addProfesseur = (professeur: Omit<Professeur, "id">): Professeur => {
-  const newProfesseur = { ...professeur, id: uuidv4() };
+  const newProfesseur = { ...professeur, id: uuidv4() } as Professeur;
   (professeurs as Professeur[]).push(newProfesseur);
   return newProfesseur;
 };
 
 export const updateProfesseur = (id: string, professeur: Omit<Professeur, "id">): Professeur | undefined => {
-  const index = professeurs.findIndex(prof => prof.id === id);
+  const index = (professeurs as Professeur[]).findIndex(prof => prof.id === id);
   if (index !== -1) {
-    const updatedProfesseur = { ...professeur, id };
+    const updatedProfesseur = { ...professeur, id } as Professeur;
     (professeurs as Professeur[])[index] = updatedProfesseur;
     return updatedProfesseur;
   }
@@ -116,7 +116,7 @@ export const updateProfesseur = (id: string, professeur: Omit<Professeur, "id">)
 };
 
 export const deleteProfesseur = (id: string): boolean => {
-  const index = professeurs.findIndex(prof => prof.id === id);
+  const index = (professeurs as Professeur[]).findIndex(prof => prof.id === id);
   if (index !== -1) {
     (professeurs as Professeur[]).splice(index, 1);
     return true;
@@ -126,42 +126,42 @@ export const deleteProfesseur = (id: string): boolean => {
 
 // Élèves
 export const getEleves = (): Eleve[] => {
-  return eleves;
+  return eleves as Eleve[];
 };
 
 export const getEleveById = (id: string): Eleve | undefined => {
-  return eleves.find(eleve => eleve.id === id);
+  return (eleves as Eleve[]).find(eleve => eleve.id === id);
 };
 
 // Cours
 export const getCours = (): Cours[] => {
-  return cours;
+  return cours as Cours[];
 };
 
 export const getCoursById = (id: string): Cours | undefined => {
-  return cours.find(c => c.id === id);
+  return (cours as Cours[]).find(c => c.id === id);
 };
 
 // Salles
 export const getSalles = (): Salle[] => {
-  return salles;
+  return salles as Salle[];
 };
 
 export const getSalleById = (id: string): Salle | undefined => {
-  return salles.find(salle => salle.id === id);
+  return (salles as Salle[]).find(salle => salle.id === id);
 };
 
 // Programmations
 export const getProgrammations = (): Programmation[] => {
-  return programmations;
+  return programmations as Programmation[];
 };
 
 export const getProgrammationsForProfesseur = (professeurId: string): Programmation[] => {
-  return programmations.filter(prog => prog.professeurId === professeurId);
+  return (programmations as Programmation[]).filter(prog => prog.professeurId === professeurId);
 };
 
 export const getProgrammationsForEleve = (eleveId: string): Programmation[] => {
-  return programmations.filter(prog => prog.elevesIds.includes(eleveId));
+  return (programmations as Programmation[]).filter(prog => prog.elevesIds.includes(eleveId));
 };
 
 // Fonction utilitaire pour générer une fiche de paie
@@ -172,7 +172,7 @@ export const genererFichePaie = (professeurId: string, mois: number, annee: numb
   const debut = new Date(annee, mois - 1, 1);
   const fin = new Date(annee, mois, 0);
   
-  const progsProfesseur = programmations.filter(prog => {
+  const progsProfesseur = (programmations as Programmation[]).filter(prog => {
     const progDate = new Date(prog.date);
     return prog.professeurId === professeurId && 
            progDate >= debut && 
@@ -196,7 +196,7 @@ export const genererFichePaie = (professeurId: string, mois: number, annee: numb
   
   const totalSalaire = totalHeures * tauxHoraire;
   
-  const newPaiement = {
+  const newPaiement: Paiement = {
     id: uuidv4(),
     montant: totalSalaire,
     date: new Date().toISOString(),
@@ -223,12 +223,12 @@ export const genererFichePaie = (professeurId: string, mois: number, annee: numb
 
 // Export par défaut pour accès rapide
 export default {
-  professeurs,
-  eleves,
-  cours,
-  salles,
-  programmations,
-  paiements,
-  fichePaies,
-  recuPaiements
+  professeurs: professeurs as Professeur[],
+  eleves: eleves as Eleve[],
+  cours: cours as Cours[],
+  salles: salles as Salle[],
+  programmations: programmations as Programmation[],
+  paiements: paiements as Paiement[],
+  fichePaies: fichePaies as FichePaie[],
+  recuPaiements: recuPaiements as RecuPaiement[]
 };
