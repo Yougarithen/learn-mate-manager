@@ -1,6 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import { Toaster as Sonner } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -14,6 +14,9 @@ import AjouterProfesseur from "@/pages/professeurs/AjouterProfesseur";
 import ModifierProfesseur from "@/pages/professeurs/ModifierProfesseur";
 import DetailsProfesseur from "@/pages/professeurs/DetailsProfesseur";
 import Eleves from "@/pages/eleves/Eleves";
+import AjouterEleve from "@/pages/eleves/AjouterEleve";
+import ModifierEleve from "@/pages/eleves/ModifierEleve";
+import DetailsEleve from "@/pages/eleves/DetailsEleve";
 import Cours from "@/pages/cours/Cours";
 import Salles from "@/pages/salles/Salles";
 import NotFound from "@/pages/NotFound";
@@ -40,8 +43,13 @@ const App = () => (
             <Route path="/professeurs/modifier/:id" element={<MainLayout><ModifierProfesseur /></MainLayout>} />
             <Route path="/professeurs/:id" element={<MainLayout><DetailsProfesseur /></MainLayout>} />
             
-            {/* Routes pour les autres modules */}
+            {/* Routes pour les élèves */}
             <Route path="/eleves" element={<MainLayout><Eleves /></MainLayout>} />
+            <Route path="/eleves/ajouter" element={<MainLayout><AjouterEleve /></MainLayout>} />
+            <Route path="/eleves/modifier/:id" element={<MainLayout><ModifierEleve /></MainLayout>} />
+            <Route path="/eleves/:id" element={<MainLayout><DetailsEleve /></MainLayout>} />
+            
+            {/* Routes pour les autres modules */}
             <Route path="/cours" element={<MainLayout><Cours /></MainLayout>} />
             <Route path="/salles" element={<MainLayout><Salles /></MainLayout>} />
             

@@ -1,9 +1,7 @@
 
 import { useState, useEffect } from "react";
-import { getEleves, Eleve } from "@/data/database";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import ElevesDataTable from "@/components/eleves/ElevesDataTable";
+import { getEleves, deleteEleve, Eleve } from "@/data/database";
 
 const Eleves = () => {
   const [eleves, setEleves] = useState<Eleve[]>([]);
@@ -13,6 +11,13 @@ const Eleves = () => {
     setEleves(getEleves());
   }, []);
 
+  const handleDelete = (id: string) => {
+    const success = deleteEleve(id);
+    if (success) {
+      setEleves(getEleves());
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-2 mb-6">
@@ -21,38 +26,8 @@ const Eleves = () => {
           Consultez, ajoutez, modifiez ou supprimez des élèves.
         </p>
       </div>
-      
-      <div className="flex justify-end mb-4">
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un élève
-        </Button>
-      </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nom</TableHead>
-            <TableHead>Prénom</TableHead>
-            <TableHead>Niveau</TableHead>
-            <TableHead>Contact</TableHead>
-            <TableHead>Date d'inscription</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {eleves.map((eleve) => (
-            <TableRow key={eleve.id}>
-              <TableCell className="font-medium">{eleve.nom}</TableCell>
-              <TableCell>{eleve.prenom}</TableCell>
-              <TableCell>{eleve.niveau}</TableCell>
-              <TableCell>
-                <div>{eleve.email}</div>
-                <div className="text-muted-foreground">Tel. parents: {eleve.telParents}</div>
-              </TableCell>
-              <TableCell>{new Date(eleve.dateInscription).toLocaleDateString('fr-FR')}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <ElevesDataTable data={eleves} onDelete={handleDelete} />
     </div>
   );
 };

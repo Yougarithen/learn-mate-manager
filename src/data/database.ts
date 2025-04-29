@@ -88,37 +88,68 @@ export interface RecuPaiement {
   date: string;
 }
 
-// Fonctions utilitaires pour la gestion des données
+// Fonction utilitaire pour sauvegarder les données dans le stockage local
+const sauvegarderDonnees = <T>(cle: string, donnees: T[]): void => {
+  try {
+    localStorage.setItem(cle, JSON.stringify(donnees));
+  } catch (error) {
+    console.error(`Erreur lors de la sauvegarde des données ${cle}:`, error);
+  }
+};
+
+// Fonction utilitaire pour charger les données depuis le stockage local
+const chargerDonnees = <T>(cle: string, donneesPardDefaut: T[]): T[] => {
+  try {
+    const donnees = localStorage.getItem(cle);
+    return donnees ? JSON.parse(donnees) : donneesPardDefaut;
+  } catch (error) {
+    console.error(`Erreur lors du chargement des données ${cle}:`, error);
+    return donneesPardDefaut;
+  }
+};
+
+// Initialisation des données dans le stockage local au chargement de l'application
+let professeursData: Professeur[] = chargerDonnees<Professeur>('professeurs', professeurs as Professeur[]);
+let elevesData: Eleve[] = chargerDonnees<Eleve>('eleves', eleves as Eleve[]);
+let coursData: Cours[] = chargerDonnees<Cours>('cours', cours as Cours[]);
+let sallesData: Salle[] = chargerDonnees<Salle>('salles', salles as Salle[]);
+let programmationsData: Programmation[] = chargerDonnees<Programmation>('programmations', programmations as Programmation[]);
+let paiementsData: Paiement[] = chargerDonnees<Paiement>('paiements', paiements as Paiement[]);
+let fichePaiesData: FichePaie[] = chargerDonnees<FichePaie>('fichePaies', fichePaies as FichePaie[]);
+let recuPaiementsData: RecuPaiement[] = chargerDonnees<RecuPaiement>('recuPaiements', recuPaiements as RecuPaiement[]);
 
 // Professeurs
 export const getProfesseurs = (): Professeur[] => {
-  return professeurs as Professeur[];
+  return professeursData;
 };
 
 export const getProfesseurById = (id: string): Professeur | undefined => {
-  return (professeurs as Professeur[]).find(prof => prof.id === id);
+  return professeursData.find(prof => prof.id === id);
 };
 
 export const addProfesseur = (professeur: Omit<Professeur, "id">): Professeur => {
   const newProfesseur = { ...professeur, id: uuidv4() } as Professeur;
-  (professeurs as Professeur[]).push(newProfesseur);
+  professeursData.push(newProfesseur);
+  sauvegarderDonnees<Professeur>('professeurs', professeursData);
   return newProfesseur;
 };
 
 export const updateProfesseur = (id: string, professeur: Omit<Professeur, "id">): Professeur | undefined => {
-  const index = (professeurs as Professeur[]).findIndex(prof => prof.id === id);
+  const index = professeursData.findIndex(prof => prof.id === id);
   if (index !== -1) {
     const updatedProfesseur = { ...professeur, id } as Professeur;
-    (professeurs as Professeur[])[index] = updatedProfesseur;
+    professeursData[index] = updatedProfesseur;
+    sauvegarderDonnees<Professeur>('professeurs', professeursData);
     return updatedProfesseur;
   }
   return undefined;
 };
 
 export const deleteProfesseur = (id: string): boolean => {
-  const index = (professeurs as Professeur[]).findIndex(prof => prof.id === id);
+  const index = professeursData.findIndex(prof => prof.id === id);
   if (index !== -1) {
-    (professeurs as Professeur[]).splice(index, 1);
+    professeursData.splice(index, 1);
+    sauvegarderDonnees<Professeur>('professeurs', professeursData);
     return true;
   }
   return false;
@@ -126,42 +157,158 @@ export const deleteProfesseur = (id: string): boolean => {
 
 // Élèves
 export const getEleves = (): Eleve[] => {
-  return eleves as Eleve[];
+  return elevesData;
 };
 
 export const getEleveById = (id: string): Eleve | undefined => {
-  return (eleves as Eleve[]).find(eleve => eleve.id === id);
+  return elevesData.find(eleve => eleve.id === id);
+};
+
+export const addEleve = (eleve: Omit<Eleve, "id">): Eleve => {
+  const newEleve = { ...eleve, id: uuidv4() } as Eleve;
+  elevesData.push(newEleve);
+  sauvegarderDonnees<Eleve>('eleves', elevesData);
+  return newEleve;
+};
+
+export const updateEleve = (id: string, eleve: Omit<Eleve, "id">): Eleve | undefined => {
+  const index = elevesData.findIndex(e => e.id === id);
+  if (index !== -1) {
+    const updatedEleve = { ...eleve, id } as Eleve;
+    elevesData[index] = updatedEleve;
+    sauvegarderDonnees<Eleve>('eleves', elevesData);
+    return updatedEleve;
+  }
+  return undefined;
+};
+
+export const deleteEleve = (id: string): boolean => {
+  const index = elevesData.findIndex(e => e.id === id);
+  if (index !== -1) {
+    elevesData.splice(index, 1);
+    sauvegarderDonnees<Eleve>('eleves', elevesData);
+    return true;
+  }
+  return false;
 };
 
 // Cours
 export const getCours = (): Cours[] => {
-  return cours as Cours[];
+  return coursData;
 };
 
 export const getCoursById = (id: string): Cours | undefined => {
-  return (cours as Cours[]).find(c => c.id === id);
+  return coursData.find(c => c.id === id);
+};
+
+export const addCours = (cours: Omit<Cours, "id">): Cours => {
+  const newCours = { ...cours, id: uuidv4() } as Cours;
+  coursData.push(newCours);
+  sauvegarderDonnees<Cours>('cours', coursData);
+  return newCours;
+};
+
+export const updateCours = (id: string, cours: Omit<Cours, "id">): Cours | undefined => {
+  const index = coursData.findIndex(c => c.id === id);
+  if (index !== -1) {
+    const updatedCours = { ...cours, id } as Cours;
+    coursData[index] = updatedCours;
+    sauvegarderDonnees<Cours>('cours', coursData);
+    return updatedCours;
+  }
+  return undefined;
+};
+
+export const deleteCours = (id: string): boolean => {
+  const index = coursData.findIndex(c => c.id === id);
+  if (index !== -1) {
+    coursData.splice(index, 1);
+    sauvegarderDonnees<Cours>('cours', coursData);
+    return true;
+  }
+  return false;
 };
 
 // Salles
 export const getSalles = (): Salle[] => {
-  return salles as Salle[];
+  return sallesData;
 };
 
 export const getSalleById = (id: string): Salle | undefined => {
-  return (salles as Salle[]).find(salle => salle.id === id);
+  return sallesData.find(salle => salle.id === id);
+};
+
+export const addSalle = (salle: Omit<Salle, "id">): Salle => {
+  const newSalle = { ...salle, id: uuidv4() } as Salle;
+  sallesData.push(newSalle);
+  sauvegarderDonnees<Salle>('salles', sallesData);
+  return newSalle;
+};
+
+export const updateSalle = (id: string, salle: Omit<Salle, "id">): Salle | undefined => {
+  const index = sallesData.findIndex(s => s.id === id);
+  if (index !== -1) {
+    const updatedSalle = { ...salle, id } as Salle;
+    sallesData[index] = updatedSalle;
+    sauvegarderDonnees<Salle>('salles', sallesData);
+    return updatedSalle;
+  }
+  return undefined;
+};
+
+export const deleteSalle = (id: string): boolean => {
+  const index = sallesData.findIndex(s => s.id === id);
+  if (index !== -1) {
+    sallesData.splice(index, 1);
+    sauvegarderDonnees<Salle>('salles', sallesData);
+    return true;
+  }
+  return false;
 };
 
 // Programmations
 export const getProgrammations = (): Programmation[] => {
-  return programmations as Programmation[];
+  return programmationsData;
+};
+
+export const getProgrammationById = (id: string): Programmation | undefined => {
+  return programmationsData.find(prog => prog.id === id);
 };
 
 export const getProgrammationsForProfesseur = (professeurId: string): Programmation[] => {
-  return (programmations as Programmation[]).filter(prog => prog.professeurId === professeurId);
+  return programmationsData.filter(prog => prog.professeurId === professeurId);
 };
 
 export const getProgrammationsForEleve = (eleveId: string): Programmation[] => {
-  return (programmations as Programmation[]).filter(prog => prog.elevesIds.includes(eleveId));
+  return programmationsData.filter(prog => prog.elevesIds.includes(eleveId));
+};
+
+export const addProgrammation = (programmation: Omit<Programmation, "id">): Programmation => {
+  const newProgrammation = { ...programmation, id: uuidv4() } as Programmation;
+  programmationsData.push(newProgrammation);
+  sauvegarderDonnees<Programmation>('programmations', programmationsData);
+  return newProgrammation;
+};
+
+export const updateProgrammation = (id: string, programmation: Omit<Programmation, "id">): Programmation | undefined => {
+  const index = programmationsData.findIndex(p => p.id === id);
+  if (index !== -1) {
+    const updatedProgrammation = { ...programmation, id } as Programmation;
+    programmationsData[index] = updatedProgrammation;
+    sauvegarderDonnees<Programmation>('programmations', programmationsData);
+    return updatedProgrammation;
+  }
+  return undefined;
+};
+
+export const deleteProgrammation = (id: string): boolean => {
+  const index = programmationsData.findIndex(p => p.id === id);
+  if (index !== -1) {
+    programmationsData.splice(index, 1);
+    sauvegarderDonnees<Programmation>('programmations', programmationsData);
+    return true;
+  }
+  return false;
 };
 
 // Fonction utilitaire pour générer une fiche de paie
@@ -172,7 +319,7 @@ export const genererFichePaie = (professeurId: string, mois: number, annee: numb
   const debut = new Date(annee, mois - 1, 1);
   const fin = new Date(annee, mois, 0);
   
-  const progsProfesseur = (programmations as Programmation[]).filter(prog => {
+  const progsProfesseur = programmationsData.filter(prog => {
     const progDate = new Date(prog.date);
     return prog.professeurId === professeurId && 
            progDate >= debut && 
@@ -204,7 +351,8 @@ export const genererFichePaie = (professeurId: string, mois: number, annee: numb
     reference: `PAIE-${professeur.nom}-${mois}-${annee}`
   };
   
-  (paiements as Paiement[]).push(newPaiement);
+  paiementsData.push(newPaiement);
+  sauvegarderDonnees<Paiement>('paiements', paiementsData);
   
   const fichePaie: FichePaie = {
     id: uuidv4(),
@@ -216,19 +364,56 @@ export const genererFichePaie = (professeurId: string, mois: number, annee: numb
     paiementId: newPaiement.id
   };
   
-  (fichePaies as FichePaie[]).push(fichePaie);
+  fichePaiesData.push(fichePaie);
+  sauvegarderDonnees<FichePaie>('fichePaies', fichePaiesData);
   
   return fichePaie;
 };
 
+// Paiements
+export const getPaiements = (): Paiement[] => {
+  return paiementsData;
+};
+
+export const getPaiementById = (id: string): Paiement | undefined => {
+  return paiementsData.find(p => p.id === id);
+};
+
+export const addPaiement = (paiement: Omit<Paiement, "id">): Paiement => {
+  const newPaiement = { ...paiement, id: uuidv4() } as Paiement;
+  paiementsData.push(newPaiement);
+  sauvegarderDonnees<Paiement>('paiements', paiementsData);
+  return newPaiement;
+};
+
+// Reçus de paiement
+export const getRecuPaiements = (): RecuPaiement[] => {
+  return recuPaiementsData;
+};
+
+export const getRecuPaiementById = (id: string): RecuPaiement | undefined => {
+  return recuPaiementsData.find(r => r.id === id);
+};
+
+export const getRecuPaiementsForEleve = (eleveId: string): RecuPaiement[] => {
+  return recuPaiementsData.filter(r => r.eleveId === eleveId);
+};
+
+export const addRecuPaiement = (recuPaiement: Omit<RecuPaiement, "id">): RecuPaiement => {
+  const newRecuPaiement = { ...recuPaiement, id: uuidv4() } as RecuPaiement;
+  recuPaiementsData.push(newRecuPaiement);
+  sauvegarderDonnees<RecuPaiement>('recuPaiements', recuPaiementsData);
+  return newRecuPaiement;
+};
+
 // Export par défaut pour accès rapide
 export default {
-  professeurs: professeurs as Professeur[],
-  eleves: eleves as Eleve[],
-  cours: cours as Cours[],
-  salles: salles as Salle[],
-  programmations: programmations as Programmation[],
-  paiements: paiements as Paiement[],
-  fichePaies: fichePaies as FichePaie[],
-  recuPaiements: recuPaiements as RecuPaiement[]
+  professeurs: professeursData,
+  eleves: elevesData,
+  cours: coursData,
+  salles: sallesData,
+  programmations: programmationsData,
+  paiements: paiementsData,
+  fichePaies: fichePaiesData,
+  recuPaiements: recuPaiementsData
 };
