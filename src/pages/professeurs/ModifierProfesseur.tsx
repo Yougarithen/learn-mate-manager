@@ -3,56 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ProfesseurForm from "@/components/professeurs/ProfesseurForm";
-import { Professeur } from "@/components/professeurs/ProfesseursDataTable";
-
-// Données fictives pour la démo
-const professeurs: Professeur[] = [
-  {
-    id: "1",
-    nom: "Dubois",
-    prenom: "Marie",
-    email: "marie.dubois@email.fr",
-    telephone: "06 12 34 56 78",
-    matiere: "Mathématiques",
-    status: "actif",
-  },
-  {
-    id: "2",
-    nom: "Martin",
-    prenom: "Philippe",
-    email: "philippe.martin@email.fr",
-    telephone: "06 23 45 67 89",
-    matiere: "Physique-Chimie",
-    status: "actif",
-  },
-  {
-    id: "3",
-    nom: "Laurent",
-    prenom: "Sophie",
-    email: "sophie.laurent@email.fr",
-    telephone: "06 34 56 78 90",
-    matiere: "Français",
-    status: "actif",
-  },
-  {
-    id: "4",
-    nom: "Petit",
-    prenom: "Thomas",
-    email: "thomas.petit@email.fr",
-    telephone: "06 45 67 89 01",
-    matiere: "Histoire-Géographie",
-    status: "inactif",
-  },
-  {
-    id: "5",
-    nom: "Bernard",
-    prenom: "Julie",
-    email: "julie.bernard@email.fr",
-    telephone: "06 56 78 90 12",
-    matiere: "Anglais",
-    status: "actif",
-  },
-];
+import { getProfesseurById, updateProfesseur, Professeur } from "@/data/database";
 
 const ModifierProfesseur = () => {
   const { id } = useParams<{ id: string }>();
@@ -61,32 +12,41 @@ const ModifierProfesseur = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Dans une application réelle, on ferait un appel API
-    const foundProfesseur = professeurs.find((p) => p.id === id);
-    
-    if (foundProfesseur) {
-      setProfesseur(foundProfesseur);
-    } else {
-      toast.error("Professeur non trouvé", {
-        description: "Le professeur que vous essayez de modifier n'existe pas.",
-      });
-      navigate("/professeurs");
+    if (id) {
+      const foundProfesseur = getProfesseurById(id);
+      
+      if (foundProfesseur) {
+        setProfesseur(foundProfesseur);
+      } else {
+        toast.error("Professeur non trouvé", {
+          description: "Le professeur que vous essayez de modifier n'existe pas.",
+        });
+        navigate("/professeurs");
+      }
     }
     
     setLoading(false);
   }, [id, navigate]);
 
   const handleSubmit = (professeurData: Omit<Professeur, "id">) => {
-    // Dans une application réelle, on enverrait les données à une API
-    console.log("Mise à jour du professeur:", { id, ...professeurData });
-    
-    // Notification de succès
-    toast.success("Professeur modifié", {
-      description: `${professeurData.prenom} ${professeurData.nom} a été modifié avec succès`,
-    });
-    
-    // Redirection vers la liste des professeurs
-    navigate("/professeurs");
+    if (id) {
+      // Mise à jour du professeur dans notre "base de données"
+      const updatedProfesseur = updateProfesseur(id, professeurData);
+      
+      if (updatedProfesseur) {
+        // Notification de succès
+        toast.success("Professeur modifié", {
+          description: `${updatedProfesseur.prenom} ${updatedProfesseur.nom} a été modifié avec succès`,
+        });
+        
+        // Redirection vers la liste des professeurs
+        navigate("/professeurs");
+      } else {
+        toast.error("Erreur lors de la modification", {
+          description: "Une erreur est survenue lors de la modification du professeur.",
+        });
+      }
+    }
   };
 
   if (loading) {

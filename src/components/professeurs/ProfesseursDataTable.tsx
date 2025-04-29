@@ -8,16 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-
-export interface Professeur {
-  id: string;
-  nom: string;
-  prenom: string;
-  email: string;
-  telephone: string;
-  matiere: string;
-  status: "actif" | "inactif";
-}
+import { Professeur } from "@/data/database";
 
 interface ProfesseursDataTableProps {
   data: Professeur[];
@@ -34,7 +25,7 @@ const ProfesseursDataTable = ({ data, onDelete }: ProfesseursDataTableProps) => 
       prof.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       prof.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       prof.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      prof.matiere.toLowerCase().includes(searchTerm.toLowerCase())
+      prof.specialite.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleDeleteClick = (professeur: Professeur) => {
@@ -77,7 +68,7 @@ const ProfesseursDataTable = ({ data, onDelete }: ProfesseursDataTableProps) => 
           <TableHeader>
             <TableRow>
               <TableHead>Professeur</TableHead>
-              <TableHead>Matière</TableHead>
+              <TableHead>Spécialité</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Statut</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -106,7 +97,7 @@ const ProfesseursDataTable = ({ data, onDelete }: ProfesseursDataTableProps) => 
                       {prof.prenom} {prof.nom}
                     </Link>
                   </TableCell>
-                  <TableCell>{prof.matiere}</TableCell>
+                  <TableCell>{prof.specialite}</TableCell>
                   <TableCell className="text-sm">
                     <div>{prof.email}</div>
                     <div className="text-muted-foreground">{prof.telephone}</div>

@@ -1,0 +1,53 @@
+
+[
+  {
+    "id": "1",
+    "coursId": "1",
+    "professeurId": "1",
+    "salleId": "1",
+    "date": "2024-05-05",
+    "heure": "14:00",
+    "duree": 90,
+    "elevesIds": ["1", "5"]
+  },
+  {
+    "id": "2",
+    "coursId": "2",
+    "professeurId": "2",
+    "salleId": "2",
+    "date": "2024-05-06",
+    "heure": "16:00",
+    "duree": 90,
+    "elevesIds": ["3"]
+  },
+  {
+    "id": "3",
+    "coursId": "3",
+    "professeurId": "3",
+    "salleId": "3",
+    "date": "2024-05-07",
+    "heure": "10:00",
+    "duree": 60,
+    "elevesIds": ["2", "4"]
+  },
+  {
+    "id": "4",
+    "coursId": "1",
+    "professeurId": "1",
+    "salleId": "1",
+    "date": "2024-05-08",
+    "heure": "14:00",
+    "duree": 90,
+    "elevesIds": ["1", "5"]
+  },
+  {
+    "id": "5",
+    "coursId": "4",
+    "professeurId": "5",
+    "salleId": "5",
+    "date": "2024-05-09",
+    "heure": "17:00",
+    "duree": 60,
+    "elevesIds": ["2", "3", "5"]
+  }
+]

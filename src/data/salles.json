@@ -1,0 +1,43 @@
+
+[
+  {
+    "id": "1",
+    "nom": "Salle Einstein",
+    "capacite": 8,
+    "adresse": "12 Rue de l'École, 75005 Paris",
+    "equipement": "Tableau blanc, projecteur, 8 pupitres",
+    "status": "disponible"
+  },
+  {
+    "id": "2",
+    "nom": "Salle Curie",
+    "capacite": 6,
+    "adresse": "12 Rue de l'École, 75005 Paris",
+    "equipement": "Tableau noir, 6 pupitres, matériel de chimie",
+    "status": "disponible"
+  },
+  {
+    "id": "3",
+    "nom": "Salle Molière",
+    "capacite": 10,
+    "adresse": "14 Avenue des Lettres, 69002 Lyon",
+    "equipement": "Bibliothèque, 10 pupitres, tableau blanc",
+    "status": "disponible"
+  },
+  {
+    "id": "4",
+    "nom": "Salle Newton",
+    "capacite": 4,
+    "adresse": "14 Avenue des Lettres, 69002 Lyon",
+    "equipement": "4 pupitres, tableau blanc interactif",
+    "status": "indisponible"
+  },
+  {
+    "id": "5",
+    "nom": "Salle Hugo",
+    "capacite": 8,
+    "adresse": "23 Rue du Savoir, 33000 Bordeaux",
+    "equipement": "8 pupitres, bibliothèque, projecteur",
+    "status": "disponible"
+  }
+]

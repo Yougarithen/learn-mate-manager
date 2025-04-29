@@ -2,18 +2,18 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import ProfesseurForm from "@/components/professeurs/ProfesseurForm";
-import { Professeur } from "@/components/professeurs/ProfesseursDataTable";
+import { addProfesseur, Professeur } from "@/data/database";
 
 const AjouterProfesseur = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (professeurData: Omit<Professeur, "id">) => {
-    // Dans une application réelle, on enverrait les données à une API
-    console.log("Ajout d'un nouveau professeur:", professeurData);
+    // Ajout du professeur dans notre "base de données"
+    const newProfesseur = addProfesseur(professeurData);
     
     // Notification de succès
     toast.success("Professeur ajouté", {
-      description: `${professeurData.prenom} ${professeurData.nom} a été ajouté avec succès`,
+      description: `${newProfesseur.prenom} ${newProfesseur.nom} a été ajouté avec succès`,
     });
     
     // Redirection vers la liste des professeurs

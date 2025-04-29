@@ -1,0 +1,63 @@
+
+[
+  {
+    "id": "1",
+    "nom": "Lefebvre",
+    "prenom": "Lucas",
+    "email": "parents.lefebvre@email.fr",
+    "telephone": "06 11 22 33 44",
+    "niveau": "Terminale S",
+    "telParents": "06 11 22 33 44",
+    "dateInscription": "2023-09-01",
+    "adresse": "56 Rue de la République, 69002 Lyon",
+    "notes": "Difficultés en mathématiques, préparation au baccalauréat"
+  },
+  {
+    "id": "2",
+    "nom": "Moreau",
+    "prenom": "Emma",
+    "email": "parents.moreau@email.fr",
+    "telephone": "06 22 33 44 55",
+    "niveau": "3ème",
+    "telParents": "06 22 33 44 55",
+    "dateInscription": "2023-10-15",
+    "adresse": "23 Avenue Jean Jaurès, 75019 Paris",
+    "notes": "Préparation au brevet des collèges"
+  },
+  {
+    "id": "3",
+    "nom": "Durand",
+    "prenom": "Maxime",
+    "email": "parents.durand@email.fr",
+    "telephone": "06 33 44 55 66",
+    "niveau": "1ère ES",
+    "telParents": "06 33 44 55 66",
+    "dateInscription": "2023-09-10",
+    "adresse": "17 Rue Nationale, 13001 Marseille",
+    "notes": "Renforcement en anglais et histoire-géographie"
+  },
+  {
+    "id": "4",
+    "nom": "Leroy",
+    "prenom": "Chloé",
+    "email": "parents.leroy@email.fr",
+    "telephone": "06 44 55 66 77",
+    "niveau": "CM2",
+    "telParents": "06 44 55 66 77",
+    "dateInscription": "2024-01-05",
+    "adresse": "8 Rue des Écoles, 31000 Toulouse",
+    "notes": "Difficultés en français et mathématiques"
+  },
+  {
+    "id": "5",
+    "nom": "Roux",
+    "prenom": "Nathan",
+    "email": "parents.roux@email.fr",
+    "telephone": "06 55 66 77 88",
+    "niveau": "2nde",
+    "telParents": "06 55 66 77 88",
+    "dateInscription": "2023-11-20",
+    "adresse": "45 Boulevard Victor Hugo, 06000 Nice",
+    "notes": "Soutien en physique-chimie"
+  }
+]

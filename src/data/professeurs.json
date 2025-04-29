@@ -1,0 +1,62 @@
+
+[
+  {
+    "id": "1",
+    "nom": "Dubois",
+    "prenom": "Marie",
+    "email": "marie.dubois@email.fr",
+    "telephone": "06 12 34 56 78",
+    "diplome": "Doctorat en Mathématiques",
+    "specialite": "Mathématiques",
+    "status": "actif",
+    "adresse": "123 Rue des Écoles, 75005 Paris",
+    "biographie": "Marie enseigne les mathématiques depuis plus de 10 ans avec une approche pédagogique innovante."
+  },
+  {
+    "id": "2",
+    "nom": "Martin",
+    "prenom": "Philippe",
+    "email": "philippe.martin@email.fr",
+    "telephone": "06 23 45 67 89",
+    "diplome": "Master en Physique",
+    "specialite": "Physique-Chimie",
+    "status": "actif",
+    "adresse": "45 Avenue Foch, 69006 Lyon",
+    "biographie": "Ancien ingénieur reconverti dans l'enseignement, Philippe partage sa passion pour les sciences avec ses élèves."
+  },
+  {
+    "id": "3",
+    "nom": "Laurent",
+    "prenom": "Sophie",
+    "email": "sophie.laurent@email.fr",
+    "telephone": "06 34 56 78 90",
+    "diplome": "Agrégation de Lettres Modernes",
+    "specialite": "Français",
+    "status": "actif",
+    "adresse": "8 Rue Victor Hugo, 33000 Bordeaux",
+    "biographie": "Sophie est spécialisée en littérature française du XIXème siècle et aide ses élèves à développer leur culture littéraire."
+  },
+  {
+    "id": "4",
+    "nom": "Petit",
+    "prenom": "Thomas",
+    "email": "thomas.petit@email.fr",
+    "telephone": "06 45 67 89 01",
+    "diplome": "Master en Histoire",
+    "specialite": "Histoire-Géographie",
+    "status": "inactif",
+    "adresse": "12 Boulevard Gambetta, 59000 Lille"
+  },
+  {
+    "id": "5",
+    "nom": "Bernard",
+    "prenom": "Julie",
+    "email": "julie.bernard@email.fr",
+    "telephone": "06 56 78 90 12",
+    "diplome": "CAPES d'Anglais",
+    "specialite": "Anglais",
+    "status": "actif",
+    "adresse": "34 Rue du Commerce, 75015 Paris",
+    "biographie": "Julie a vécu 5 ans à Londres et transmet sa passion pour la culture anglophone à ses élèves."
+  }
+]

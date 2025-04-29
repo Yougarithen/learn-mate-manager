@@ -6,102 +6,75 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Professeur } from "@/components/professeurs/ProfesseursDataTable";
-
-// Données fictives pour la démo
-const professeurs: Professeur[] = [
-  {
-    id: "1",
-    nom: "Dubois",
-    prenom: "Marie",
-    email: "marie.dubois@email.fr",
-    telephone: "06 12 34 56 78",
-    matiere: "Mathématiques",
-    status: "actif",
-  },
-  {
-    id: "2",
-    nom: "Martin",
-    prenom: "Philippe",
-    email: "philippe.martin@email.fr",
-    telephone: "06 23 45 67 89",
-    matiere: "Physique-Chimie",
-    status: "actif",
-  },
-  {
-    id: "3",
-    nom: "Laurent",
-    prenom: "Sophie",
-    email: "sophie.laurent@email.fr",
-    telephone: "06 34 56 78 90",
-    matiere: "Français",
-    status: "actif",
-  },
-  {
-    id: "4",
-    nom: "Petit",
-    prenom: "Thomas",
-    email: "thomas.petit@email.fr",
-    telephone: "06 45 67 89 01",
-    matiere: "Histoire-Géographie",
-    status: "inactif",
-  },
-  {
-    id: "5",
-    nom: "Bernard",
-    prenom: "Julie",
-    email: "julie.bernard@email.fr",
-    telephone: "06 56 78 90 12",
-    matiere: "Anglais",
-    status: "actif",
-  },
-];
-
-// Cours fictifs pour la démo
-const coursFictifs = [
-  { id: "1", titre: "Algèbre Fondamentale", jour: "Lundi", horaire: "09:00 - 10:30", salle: "Salle 101", nbEleves: 15 },
-  { id: "2", titre: "Géométrie", jour: "Mardi", horaire: "14:00 - 15:30", salle: "Salle 203", nbEleves: 12 },
-  { id: "3", titre: "Statistiques", jour: "Jeudi", horaire: "10:45 - 12:15", salle: "Salle 105", nbEleves: 18 },
-];
+import { 
+  getProfesseurById, 
+  deleteProfesseur, 
+  getProgrammationsForProfesseur, 
+  getCoursById,
+  Professeur,
+  Programmation 
+} from "@/data/database";
 
 const DetailsProfesseur = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [professeur, setProfesseur] = useState<Professeur | undefined>(undefined);
+  const [programmations, setProgrammations] = useState<Programmation[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   useEffect(() => {
-    // Dans une application réelle, on ferait un appel API
-    const foundProfesseur = professeurs.find((p) => p.id === id);
-    
-    if (foundProfesseur) {
-      setProfesseur(foundProfesseur);
-    } else {
-      toast.error("Professeur non trouvé", {
-        description: "Le professeur que vous cherchez n'existe pas.",
-      });
-      navigate("/professeurs");
+    if (id) {
+      const foundProfesseur = getProfesseurById(id);
+      
+      if (foundProfesseur) {
+        setProfesseur(foundProfesseur);
+        setProgrammations(getProgrammationsForProfesseur(id));
+      } else {
+        toast.error("Professeur non trouvé", {
+          description: "Le professeur que vous cherchez n'existe pas.",
+        });
+        navigate("/professeurs");
+      }
     }
     
     setLoading(false);
   }, [id, navigate]);
 
   const handleDelete = () => {
-    // Dans une application réelle, on enverrait une requête de suppression à l'API
-    console.log("Suppression du professeur:", id);
-    
-    // Notification de succès
-    if (professeur) {
-      toast.success("Professeur supprimé", {
-        description: `${professeur.prenom} ${professeur.nom} a été supprimé avec succès`,
-      });
+    if (id) {
+      const success = deleteProfesseur(id);
+      
+      if (success && professeur) {
+        // Notification de succès
+        toast.success("Professeur supprimé", {
+          description: `${professeur.prenom} ${professeur.nom} a été supprimé avec succès`,
+        });
+        
+        // Redirection vers la liste des professeurs
+        navigate("/professeurs");
+      } else {
+        toast.error("Erreur lors de la suppression", {
+          description: "Une erreur est survenue lors de la suppression du professeur.",
+        });
+      }
     }
-    
-    // Redirection vers la liste des professeurs
-    navigate("/professeurs");
+  };
+
+  const getTitreCours = (coursId: string) => {
+    const cours = getCoursById(coursId);
+    return cours ? cours.matiere : "Cours inconnu";
+  };
+
+  const formaterDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
   };
 
   if (loading) {
@@ -133,7 +106,7 @@ const DetailsProfesseur = () => {
                     {professeur.prenom} {professeur.nom}
                   </CardTitle>
                   <CardDescription className="flex items-center mt-1">
-                    <span className="mr-2">Professeur de {professeur.matiere}</span>
+                    <span className="mr-2">Professeur de {professeur.specialite}</span>
                     <Badge variant={professeur.status === "actif" ? "default" : "secondary"}>
                       {professeur.status === "actif" ? "Actif" : "Inactif"}
                     </Badge>
@@ -168,27 +141,32 @@ const DetailsProfesseur = () => {
                 <TabsContent value="cours" className="py-4">
                   <h3 className="text-lg font-medium mb-4">Cours enseignés</h3>
                   <div className="space-y-4">
-                    {coursFictifs.map((cours) => (
-                      <div key={cours.id} className="border rounded-md p-3 bg-card">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="font-medium">{cours.titre}</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {cours.jour}, {cours.horaire} • {cours.salle}
-                            </p>
+                    {programmations.length > 0 ? (
+                      programmations.map((prog) => (
+                        <div key={prog.id} className="border rounded-md p-3 bg-card">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h4 className="font-medium">{getTitreCours(prog.coursId)}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {formaterDate(prog.date)}, {prog.heure} • {prog.duree} min
+                              </p>
+                            </div>
+                            <Badge variant="outline">{prog.elevesIds.length} élèves</Badge>
                           </div>
-                          <Badge variant="outline">{cours.nbEleves} élèves</Badge>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    ) : (
+                      <p className="text-muted-foreground">
+                        Aucun cours programmé pour ce professeur.
+                      </p>
+                    )}
                   </div>
                 </TabsContent>
                 <TabsContent value="eleves" className="py-4">
                   <h3 className="text-lg font-medium mb-4">Élèves encadrés</h3>
                   <p className="text-muted-foreground">
-                    Ce professeur encadre actuellement 45 élèves répartis sur 3 cours différents.
+                    Ce professeur encadre actuellement {programmations.reduce((acc, prog) => acc + prog.elevesIds.length, 0)} élèves répartis sur {programmations.length} cours différents.
                   </p>
-                  {/* Liste des élèves - pour la démo, on affiche un message */}
                   <div className="mt-4 text-center py-8 border border-dashed rounded-md">
                     <p className="text-muted-foreground">
                       La liste détaillée des élèves sera disponible ici.
@@ -211,15 +189,21 @@ const DetailsProfesseur = () => {
                       </div>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Adresse</h3>
+                      <h3 className="text-lg font-medium mb-2">Diplôme</h3>
                       <p className="text-muted-foreground">
-                        123 Rue de l'Académie, 75001 Paris
+                        {professeur.diplome}
                       </p>
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium mb-2">Notes</h3>
+                      <h3 className="text-lg font-medium mb-2">Adresse</h3>
                       <p className="text-muted-foreground">
-                        Aucune note pour ce professeur.
+                        {professeur.adresse || "Non renseignée"}
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-medium mb-2">Biographie</h3>
+                      <p className="text-muted-foreground">
+                        {professeur.biographie || "Aucune biographie disponible."}
                       </p>
                     </div>
                   </div>
@@ -237,15 +221,15 @@ const DetailsProfesseur = () => {
             <CardContent className="space-y-4">
               <div className="flex justify-between py-2 border-b">
                 <span className="text-muted-foreground">Cours enseignés</span>
-                <span className="font-medium">3</span>
+                <span className="font-medium">{programmations.length}</span>
               </div>
               <div className="flex justify-between py-2 border-b">
                 <span className="text-muted-foreground">Total d'élèves</span>
-                <span className="font-medium">45</span>
+                <span className="font-medium">{programmations.reduce((acc, prog) => acc + prog.elevesIds.length, 0)}</span>
               </div>
               <div className="flex justify-between py-2 border-b">
                 <span className="text-muted-foreground">Heures par semaine</span>
-                <span className="font-medium">12h</span>
+                <span className="font-medium">{Math.round(programmations.reduce((acc, prog) => acc + (prog.duree / 60), 0) * 10) / 10}h</span>
               </div>
               <div className="flex justify-between py-2">
                 <span className="text-muted-foreground">Depuis</span>

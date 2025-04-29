@@ -1,0 +1,45 @@
+
+[
+  {
+    "id": "1",
+    "matiere": "Mathématiques",
+    "niveau": "Lycée",
+    "salaireParHeure": 30,
+    "description": "Cours de mathématiques pour les lycéens (Seconde à Terminale)"
+  },
+  {
+    "id": "2",
+    "matiere": "Physique-Chimie",
+    "niveau": "Lycée",
+    "salaireParHeure": 30,
+    "description": "Cours de physique-chimie pour les lycéens (Seconde à Terminale)"
+  },
+  {
+    "id": "3",
+    "matiere": "Français",
+    "niveau": "Collège",
+    "salaireParHeure": 25,
+    "description": "Cours de français pour les collégiens (6ème à 3ème)"
+  },
+  {
+    "id": "4",
+    "matiere": "Anglais",
+    "niveau": "Tous niveaux",
+    "salaireParHeure": 28,
+    "description": "Cours d'anglais pour tous niveaux (primaire au lycée)"
+  },
+  {
+    "id": "5",
+    "matiere": "Histoire-Géographie",
+    "niveau": "Collège/Lycée",
+    "salaireParHeure": 25,
+    "description": "Cours d'histoire-géographie pour collégiens et lycéens"
+  },
+  {
+    "id": "6",
+    "matiere": "Mathématiques",
+    "niveau": "Primaire",
+    "salaireParHeure": 22,
+    "description": "Cours de mathématiques pour les élèves du primaire (CP à CM2)"
+  }
+]

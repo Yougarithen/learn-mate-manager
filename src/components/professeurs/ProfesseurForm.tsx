@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Professeur } from "./ProfesseursDataTable";
 import { ArrowLeft } from "lucide-react";
+import { Professeur } from "@/data/database";
 
 interface ProfesseurFormProps {
   professeur?: Professeur;
@@ -23,10 +23,11 @@ const ProfesseurForm = ({ professeur, onSubmit, mode }: ProfesseurFormProps) => 
     prenom: "",
     email: "",
     telephone: "",
-    matiere: "",
+    specialite: "",
     status: "actif",
     adresse: "",
     biographie: "",
+    diplome: ""
   });
 
   useEffect(() => {
@@ -36,10 +37,11 @@ const ProfesseurForm = ({ professeur, onSubmit, mode }: ProfesseurFormProps) => 
         prenom: professeur.prenom,
         email: professeur.email,
         telephone: professeur.telephone,
-        matiere: professeur.matiere,
+        specialite: professeur.specialite,
         status: professeur.status,
-        adresse: "",
-        biographie: "",
+        adresse: professeur.adresse || "",
+        biographie: professeur.biographie || "",
+        diplome: professeur.diplome
       });
     }
   }, [professeur, mode]);
@@ -62,7 +64,7 @@ const ProfesseurForm = ({ professeur, onSubmit, mode }: ProfesseurFormProps) => 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.nom || !formData.prenom || !formData.email || !formData.matiere) {
+    if (!formData.nom || !formData.prenom || !formData.email || !formData.specialite || !formData.diplome) {
       toast.error("Formulaire incomplet", {
         description: "Veuillez remplir tous les champs obligatoires."
       });
@@ -83,8 +85,11 @@ const ProfesseurForm = ({ professeur, onSubmit, mode }: ProfesseurFormProps) => 
       prenom: formData.prenom,
       email: formData.email,
       telephone: formData.telephone,
-      matiere: formData.matiere,
+      specialite: formData.specialite,
       status: formData.status as "actif" | "inactif",
+      adresse: formData.adresse,
+      biographie: formData.biographie,
+      diplome: formData.diplome
     });
   };
 
@@ -146,13 +151,24 @@ const ProfesseurForm = ({ professeur, onSubmit, mode }: ProfesseurFormProps) => 
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="matiere">Matière enseignée *</Label>
+            <Label htmlFor="specialite">Spécialité enseignée *</Label>
             <Input
-              id="matiere"
-              name="matiere"
-              value={formData.matiere}
+              id="specialite"
+              name="specialite"
+              value={formData.specialite}
               onChange={handleChange}
               placeholder="Ex: Mathématiques"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="diplome">Diplôme *</Label>
+            <Input
+              id="diplome"
+              name="diplome"
+              value={formData.diplome}
+              onChange={handleChange}
+              placeholder="Ex: Master en Mathématiques"
               required
             />
           </div>
