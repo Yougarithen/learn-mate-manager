@@ -1,19 +1,39 @@
 
-import { BarChart, UsersRound, GraduationCap, BookOpen, Building } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart as ReBarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const data = [
-  { name: "Lun", professeurs: 3, eleves: 24, cours: 8 },
-  { name: "Mar", professeurs: 4, eleves: 27, cours: 10 },
-  { name: "Mer", professeurs: 5, eleves: 30, cours: 12 },
-  { name: "Jeu", professeurs: 4, eleves: 29, cours: 11 },
-  { name: "Ven", professeurs: 6, eleves: 35, cours: 15 },
-  { name: "Sam", professeurs: 8, eleves: 42, cours: 20 },
-  { name: "Dim", professeurs: 2, eleves: 15, cours: 6 },
-];
+import { UsersRound, GraduationCap, BookOpen, Building } from "lucide-react";
+import { useEffect, useState } from "react";
+import { getProfesseurs, getEleves, getCours, getSalles } from "@/data/database";
 
 const Dashboard = () => {
+  const [stats, setStats] = useState({
+    professeurs: 0,
+    eleves: 0,
+    cours: 0,
+    salles: 0,
+    sallesOccupation: "0"
+  });
+
+  useEffect(() => {
+    // Récupération des données depuis notre "base de données"
+    const professeurs = getProfesseurs();
+    const eleves = getEleves();
+    const cours = getCours();
+    const salles = getSalles();
+    
+    // Calcul du taux d'occupation des salles (simulation)
+    const sallesDisponibles = salles.filter(salle => salle.status === "disponible").length;
+    const tauxOccupation = salles.length > 0 
+      ? Math.round(((salles.length - sallesDisponibles) / salles.length) * 100) 
+      : 0;
+    
+    setStats({
+      professeurs: professeurs.length,
+      eleves: eleves.length,
+      cours: cours.length,
+      salles: salles.length,
+      sallesOccupation: `${tauxOccupation}%`
+    });
+  }, []);
+
   return (
     <div>
       <div className="flex flex-col gap-2 mb-6">
@@ -23,98 +43,56 @@ const Dashboard = () => {
         </p>
       </div>
 
-      <div className="dashboard-stats">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard 
           icon={<UsersRound className="h-5 w-5" />} 
           iconColor="bg-blue-500" 
           title="Professeurs" 
-          value="12" 
-          trend="+2 ce mois" 
+          value={stats.professeurs.toString()} 
+          trend={stats.professeurs > 0 ? `${stats.professeurs} actifs` : "Aucun professeur"} 
         />
         <StatCard 
           icon={<GraduationCap className="h-5 w-5" />} 
           iconColor="bg-green-500" 
           title="Élèves" 
-          value="184" 
-          trend="+8 cette semaine" 
+          value={stats.eleves.toString()} 
+          trend={stats.eleves > 0 ? `${Math.round(stats.eleves / 20)} classes` : "Aucun élève"} 
         />
         <StatCard 
           icon={<BookOpen className="h-5 w-5" />} 
           iconColor="bg-purple-500" 
           title="Cours" 
-          value="57" 
-          trend="12 aujourd'hui" 
+          value={stats.cours.toString()} 
+          trend={`${Math.min(stats.cours, 4)} matières principales`} 
         />
         <StatCard 
           icon={<Building className="h-5 w-5" />} 
           iconColor="bg-amber-500" 
           title="Salles" 
-          value="8" 
-          trend="87% d'occupation" 
+          value={stats.salles.toString()} 
+          trend={`${stats.sallesOccupation} d'occupation`} 
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="md:col-span-2 overflow-hidden">
-          <CardHeader>
-            <CardTitle>Vue d'ensemble de la semaine</CardTitle>
-            <CardDescription>
-              Activité des professeurs, élèves et cours
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="h-[300px] w-full px-2">
-              <ResponsiveContainer width="100%" height="100%">
-                <ReBarChart data={data}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="professeurs" fill="#3B82F6" name="Professeurs" />
-                  <Bar dataKey="eleves" fill="#10B981" name="Élèves" />
-                  <Bar dataKey="cours" fill="#8B5CF6" name="Cours" />
-                </ReBarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Cours à venir</CardTitle>
-            <CardDescription>
-              Cours planifiés aujourd'hui
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <UpcomingCourseItem 
-                time="08:30 - 10:00" 
-                title="Mathématiques" 
-                salle="Salle 103" 
-                prof="Marie Laurent" 
-              />
-              <UpcomingCourseItem 
-                time="10:15 - 11:45" 
-                title="Physique" 
-                salle="Salle 203" 
-                prof="Pierre Durand" 
-              />
-              <UpcomingCourseItem 
-                time="13:00 - 14:30" 
-                title="Français" 
-                salle="Salle 105" 
-                prof="Sophie Martin" 
-              />
-              <UpcomingCourseItem 
-                time="14:45 - 16:15" 
-                title="Histoire" 
-                salle="Salle 201" 
-                prof="Thomas Dubois" 
-              />
-            </div>
-          </CardContent>
-        </Card>
+      <div className="p-6 border rounded-lg bg-card">
+        <h2 className="text-2xl font-bold mb-4">Résumé financier</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="p-4 border rounded-lg bg-background">
+            <h3 className="text-sm font-medium text-muted-foreground">Revenu mensuel</h3>
+            <p className="text-2xl font-bold">125,000 DA</p>
+            <p className="text-xs text-muted-foreground mt-1">+8% par rapport au mois précédent</p>
+          </div>
+          <div className="p-4 border rounded-lg bg-background">
+            <h3 className="text-sm font-medium text-muted-foreground">Dépenses</h3>
+            <p className="text-2xl font-bold">85,300 DA</p>
+            <p className="text-xs text-muted-foreground mt-1">-3% par rapport au mois précédent</p>
+          </div>
+          <div className="p-4 border rounded-lg bg-background">
+            <h3 className="text-sm font-medium text-muted-foreground">Bénéfice net</h3>
+            <p className="text-2xl font-bold">39,700 DA</p>
+            <p className="text-xs text-muted-foreground mt-1">+15% par rapport au mois précédent</p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -130,8 +108,8 @@ interface StatCardProps {
 
 const StatCard = ({ icon, iconColor, title, value, trend }: StatCardProps) => {
   return (
-    <div className="dashboard-stat-card">
-      <div className={`dashboard-icon ${iconColor}`}>
+    <div className="flex items-center p-4 border rounded-lg bg-card">
+      <div className={`flex items-center justify-center p-2 rounded-lg mr-4 ${iconColor}`}>
         {icon}
       </div>
       <div>
@@ -139,27 +117,6 @@ const StatCard = ({ icon, iconColor, title, value, trend }: StatCardProps) => {
         <div className="flex items-baseline">
           <p className="text-2xl font-bold">{value}</p>
           <span className="ml-2 text-xs text-muted-foreground">{trend}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-interface UpcomingCourseItemProps {
-  time: string;
-  title: string;
-  salle: string;
-  prof: string;
-}
-
-const UpcomingCourseItem = ({ time, title, salle, prof }: UpcomingCourseItemProps) => {
-  return (
-    <div className="flex items-center space-x-3 border-b pb-3 last:border-0 last:pb-0">
-      <div className="text-sm font-medium min-w-[100px]">{time}</div>
-      <div className="flex-1">
-        <div className="font-medium">{title}</div>
-        <div className="text-xs text-muted-foreground">
-          {salle} • {prof}
         </div>
       </div>
     </div>
