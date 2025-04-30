@@ -8,6 +8,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import { Eleve } from "@/data/database";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
+import niveauxScolaires from "@/data/niveauxScolaires.json";
 
 interface EleveFormProps {
   eleve?: Eleve;
@@ -47,6 +55,13 @@ const EleveForm = ({ eleve, onSubmit, mode }: EleveFormProps) => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -144,14 +159,21 @@ const EleveForm = ({ eleve, onSubmit, mode }: EleveFormProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="niveau">Niveau scolaire *</Label>
-            <Input
-              id="niveau"
-              name="niveau"
-              value={formData.niveau}
-              onChange={handleChange}
-              placeholder="Ex: Terminale S"
-              required
-            />
+            <Select 
+              value={formData.niveau} 
+              onValueChange={(value) => handleSelectChange("niveau", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez un niveau" />
+              </SelectTrigger>
+              <SelectContent>
+                {niveauxScolaires.map((niveau) => (
+                  <SelectItem key={niveau} value={niveau}>
+                    {niveau}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="telParents">Téléphone des parents *</Label>

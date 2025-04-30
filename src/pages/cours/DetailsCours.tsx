@@ -72,7 +72,7 @@ const DetailsCours = () => {
 
           <div>
             <p className="text-sm font-medium text-muted-foreground">Salaire horaire</p>
-            <p>{cours.salaireParHeure} €/h</p>
+            <p>{cours.salaireParHeure} DA/h</p>
           </div>
 
           <div>

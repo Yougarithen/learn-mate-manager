@@ -11,9 +11,17 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Cours } from "@/data/database";
+import niveauxScolaires from "@/data/niveauxScolaires.json";
 
 const formSchema = z.object({
   matiere: z.string().min(2, {
@@ -23,7 +31,7 @@ const formSchema = z.object({
     message: "Le niveau doit être spécifié.",
   }),
   salaireParHeure: z.coerce.number().min(10, {
-    message: "Le salaire horaire doit être d'au moins 10€.",
+    message: "Le salaire horaire doit être d'au moins 10 DA.",
   }),
   description: z.string().optional(),
 });
@@ -40,7 +48,7 @@ const CoursForm = ({ onSubmit, defaultValues, mode }: CoursFormProps) => {
     defaultValues: defaultValues || {
       matiere: "",
       niveau: "",
-      salaireParHeure: 25,
+      salaireParHeure: 2500,
       description: "",
     },
   });
@@ -69,9 +77,20 @@ const CoursForm = ({ onSubmit, defaultValues, mode }: CoursFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Niveau</FormLabel>
-                <FormControl>
-                  <Input placeholder="Lycée" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez un niveau" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {niveauxScolaires.map((niveau) => (
+                      <SelectItem key={niveau} value={niveau}>
+                        {niveau}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -83,9 +102,9 @@ const CoursForm = ({ onSubmit, defaultValues, mode }: CoursFormProps) => {
           name="salaireParHeure"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Salaire horaire (€)</FormLabel>
+              <FormLabel>Salaire horaire (DA)</FormLabel>
               <FormControl>
-                <Input type="number" min="10" step="0.5" {...field} />
+                <Input type="number" min="10" step="100" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

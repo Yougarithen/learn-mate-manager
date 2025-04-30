@@ -73,27 +73,6 @@ const Dashboard = () => {
           trend={`${stats.sallesOccupation} d'occupation`} 
         />
       </div>
-
-      <div className="p-6 border rounded-lg bg-card">
-        <h2 className="text-2xl font-bold mb-4">Résumé financier</h2>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          <div className="p-4 border rounded-lg bg-background">
-            <h3 className="text-sm font-medium text-muted-foreground">Revenu mensuel</h3>
-            <p className="text-2xl font-bold">125,000 DA</p>
-            <p className="text-xs text-muted-foreground mt-1">+8% par rapport au mois précédent</p>
-          </div>
-          <div className="p-4 border rounded-lg bg-background">
-            <h3 className="text-sm font-medium text-muted-foreground">Dépenses</h3>
-            <p className="text-2xl font-bold">85,300 DA</p>
-            <p className="text-xs text-muted-foreground mt-1">-3% par rapport au mois précédent</p>
-          </div>
-          <div className="p-4 border rounded-lg bg-background">
-            <h3 className="text-sm font-medium text-muted-foreground">Bénéfice net</h3>
-            <p className="text-2xl font-bold">39,700 DA</p>
-            <p className="text-xs text-muted-foreground mt-1">+15% par rapport au mois précédent</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
