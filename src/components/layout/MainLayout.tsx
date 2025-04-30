@@ -90,8 +90,13 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       {/* Sidebar pour desktop */}
       {!isMobile && (
         <aside className="w-64 bg-card border-r flex flex-col">
-          <div className="p-6 border-b">
-            <h1 className="font-semibold text-xl">Gestion École</h1>
+          <div className="p-6 border-b flex items-center">
+            <img 
+              src="/lovable-uploads/237fb7bd-5492-46b0-888d-555eb84017ed.png" 
+              alt="MySchool Logo" 
+              className="h-8 w-8 mr-3" 
+            />
+            <h1 className="font-semibold text-xl">MySchool</h1>
           </div>
           <ScrollArea className="flex-1 p-4">
             <nav className="grid gap-1 px-2">
@@ -123,7 +128,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Header pour mobile */}
         {isMobile && (
           <header className="border-b p-4 flex items-center justify-between bg-card">
-            <h1 className="font-semibold text-lg">Gestion École</h1>
+            <div className="flex items-center">
+              <img 
+                src="/lovable-uploads/237fb7bd-5492-46b0-888d-555eb84017ed.png" 
+                alt="MySchool Logo" 
+                className="h-6 w-6 mr-2" 
+              />
+              <h1 className="font-semibold text-lg">MySchool</h1>
+            </div>
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -133,7 +145,14 @@ const MainLayout = ({ children }: MainLayoutProps) => {
               <SheetContent side="left" className="w-64 p-0">
                 <div className="p-6 border-b">
                   <div className="flex items-center justify-between">
-                    <h1 className="font-semibold text-xl">Gestion École</h1>
+                    <div className="flex items-center">
+                      <img 
+                        src="/lovable-uploads/237fb7bd-5492-46b0-888d-555eb84017ed.png" 
+                        alt="MySchool Logo" 
+                        className="h-6 w-6 mr-2" 
+                      />
+                      <h1 className="font-semibold text-xl">MySchool</h1>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
