@@ -18,7 +18,13 @@ import AjouterEleve from "@/pages/eleves/AjouterEleve";
 import ModifierEleve from "@/pages/eleves/ModifierEleve";
 import DetailsEleve from "@/pages/eleves/DetailsEleve";
 import Cours from "@/pages/cours/Cours";
+import AjouterCours from "@/pages/cours/AjouterCours";
+import ModifierCours from "@/pages/cours/ModifierCours";
+import DetailsCours from "@/pages/cours/DetailsCours";
 import Salles from "@/pages/salles/Salles";
+import AjouterSalle from "@/pages/salles/AjouterSalle";
+import ModifierSalle from "@/pages/salles/ModifierSalle";
+import DetailsSalle from "@/pages/salles/DetailsSalle";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,9 +55,17 @@ const App = () => (
             <Route path="/eleves/modifier/:id" element={<MainLayout><ModifierEleve /></MainLayout>} />
             <Route path="/eleves/:id" element={<MainLayout><DetailsEleve /></MainLayout>} />
             
-            {/* Routes pour les autres modules */}
+            {/* Routes pour les cours */}
             <Route path="/cours" element={<MainLayout><Cours /></MainLayout>} />
+            <Route path="/cours/ajouter" element={<MainLayout><AjouterCours /></MainLayout>} />
+            <Route path="/cours/modifier/:id" element={<MainLayout><ModifierCours /></MainLayout>} />
+            <Route path="/cours/:id" element={<MainLayout><DetailsCours /></MainLayout>} />
+            
+            {/* Routes pour les salles */}
             <Route path="/salles" element={<MainLayout><Salles /></MainLayout>} />
+            <Route path="/salles/ajouter" element={<MainLayout><AjouterSalle /></MainLayout>} />
+            <Route path="/salles/modifier/:id" element={<MainLayout><ModifierSalle /></MainLayout>} />
+            <Route path="/salles/:id" element={<MainLayout><DetailsSalle /></MainLayout>} />
             
             {/* Route par défaut -> Redirection vers dashboard */}
             <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />

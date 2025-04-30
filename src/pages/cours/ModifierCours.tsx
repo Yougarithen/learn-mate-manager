@@ -1,0 +1,69 @@
+
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
+import CoursForm from "@/components/cours/CoursForm";
+import { getCoursById, updateCours, Cours } from "@/data/database";
+
+const ModifierCours = () => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [cours, setCours] = useState<Cours | null>(null);
+
+  useEffect(() => {
+    if (id) {
+      const coursData = getCoursById(id);
+      if (coursData) {
+        setCours(coursData);
+      } else {
+        toast.error("Cours introuvable");
+        navigate("/cours");
+      }
+    }
+  }, [id, navigate]);
+
+  const handleSubmit = (coursData: Omit<Cours, "id">) => {
+    if (id) {
+      // Mise à jour du cours dans notre "base de données"
+      const updatedCours = updateCours(id, coursData);
+      
+      if (updatedCours) {
+        // Notification de succès
+        toast.success("Cours modifié", {
+          description: `Le cours de ${updatedCours.matiere} (${updatedCours.niveau}) a été modifié avec succès`,
+        });
+        
+        // Redirection vers la liste des cours
+        navigate("/cours");
+      } else {
+        toast.error("Erreur lors de la modification du cours");
+      }
+    }
+  };
+
+  if (!cours) {
+    return <div>Chargement...</div>;
+  }
+
+  // On exclut l'ID pour obtenir seulement les champs modifiables
+  const { id: coursId, ...defaultValues } = cours;
+
+  return (
+    <div>
+      <div className="flex flex-col gap-2 mb-6">
+        <h1 className="text-3xl font-bold tracking-tight">Modifier un Cours</h1>
+        <p className="text-muted-foreground">
+          Modifiez les informations du cours {cours.matiere} ({cours.niveau}).
+        </p>
+      </div>
+
+      <CoursForm 
+        onSubmit={handleSubmit} 
+        defaultValues={defaultValues}
+        mode="update" 
+      />
+    </div>
+  );
+};
+
+export default ModifierCours;

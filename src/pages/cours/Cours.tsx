@@ -1,9 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { getCours, Cours as CoursType } from "@/data/database";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { getCours, deleteCours, Cours as CoursType } from "@/data/database";
+import { toast } from "sonner";
+import CoursDataTable from "@/components/cours/CoursDataTable";
 
 const Cours = () => {
   const [cours, setCours] = useState<CoursType[]>([]);
@@ -13,6 +12,16 @@ const Cours = () => {
     setCours(getCours());
   }, []);
 
+  const handleDelete = (id: string) => {
+    const success = deleteCours(id);
+    if (success) {
+      setCours(getCours());
+      toast.success("Cours supprimé", {
+        description: "Le cours a été supprimé avec succès",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-2 mb-6">
@@ -21,33 +30,8 @@ const Cours = () => {
           Consultez, ajoutez, modifiez ou supprimez des cours.
         </p>
       </div>
-      
-      <div className="flex justify-end mb-4">
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter un cours
-        </Button>
-      </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Matière</TableHead>
-            <TableHead>Niveau</TableHead>
-            <TableHead>Salaire horaire</TableHead>
-            <TableHead>Description</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {cours.map((c) => (
-            <TableRow key={c.id}>
-              <TableCell className="font-medium">{c.matiere}</TableCell>
-              <TableCell>{c.niveau}</TableCell>
-              <TableCell>{c.salaireParHeure} €/h</TableCell>
-              <TableCell>{c.description}</TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <CoursDataTable data={cours} onDelete={handleDelete} />
     </div>
   );
 };

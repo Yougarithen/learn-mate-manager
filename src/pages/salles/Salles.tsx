@@ -1,10 +1,8 @@
 
 import { useState, useEffect } from "react";
-import { getSalles, Salle } from "@/data/database";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { getSalles, deleteSalle, Salle } from "@/data/database";
+import { toast } from "sonner";
+import SallesDataTable from "@/components/salles/SallesDataTable";
 
 const Salles = () => {
   const [salles, setSalles] = useState<Salle[]>([]);
@@ -14,6 +12,16 @@ const Salles = () => {
     setSalles(getSalles());
   }, []);
 
+  const handleDelete = (id: string) => {
+    const success = deleteSalle(id);
+    if (success) {
+      setSalles(getSalles());
+      toast.success("Salle supprimée", {
+        description: "La salle a été supprimée avec succès",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col gap-2 mb-6">
@@ -22,39 +30,8 @@ const Salles = () => {
           Consultez, ajoutez, modifiez ou supprimez des salles.
         </p>
       </div>
-      
-      <div className="flex justify-end mb-4">
-        <Button>
-          <Plus className="mr-2 h-4 w-4" /> Ajouter une salle
-        </Button>
-      </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Nom</TableHead>
-            <TableHead>Capacité</TableHead>
-            <TableHead>Adresse</TableHead>
-            <TableHead>Équipement</TableHead>
-            <TableHead>Statut</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {salles.map((salle) => (
-            <TableRow key={salle.id}>
-              <TableCell className="font-medium">{salle.nom}</TableCell>
-              <TableCell>{salle.capacite} places</TableCell>
-              <TableCell>{salle.adresse}</TableCell>
-              <TableCell>{salle.equipement}</TableCell>
-              <TableCell>
-                <Badge variant={salle.status === "disponible" ? "default" : "secondary"}>
-                  {salle.status === "disponible" ? "Disponible" : "Indisponible"}
-                </Badge>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <SallesDataTable data={salles} onDelete={handleDelete} />
     </div>
   );
 };
