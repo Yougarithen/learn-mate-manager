@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -14,6 +15,7 @@ const Login = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -22,8 +24,10 @@ const Login = () => {
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      if (email === "admin@example.com" && password === "password") {
-        useAuth().login();
+      // Appel de la fonction login avec les paramètres requis
+      const success = await login(email, password);
+      
+      if (success) {
         navigate("/dashboard");
       } else {
         setError("Identifiant ou mot de passe incorrect.");
