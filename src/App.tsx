@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Outlet } from "react-router-dom";
 import { Toaster } from "@/components/ui/toaster";
 import MainLayout from "@/components/layout/MainLayout";
 import Index from "@/pages/Index";
@@ -42,7 +42,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/login" element={<Login />} />
-        <Route element={<MainLayout />}>
+        <Route path="/" element={<MainLayout><Outlet /></MainLayout>}>
           <Route path="/dashboard" element={<Dashboard />} />
           
           {/* Routes professeurs */}
