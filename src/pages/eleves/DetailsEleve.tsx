@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Edit, Trash2, CalendarRange } from "lucide-react";
+import { ArrowLeft, Edit, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -153,7 +153,7 @@ const DetailsEleve = () => {
               </TabsContent>
               
               <TabsContent value="timetable">
-                <Timetable />
+                <Timetable programmations={programmations} />
               </TabsContent>
             </Tabs>
           </CardContent>
