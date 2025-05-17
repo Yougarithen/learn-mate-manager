@@ -8,6 +8,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { getEleveById, deleteEleve, getProgrammationsForEleve, getProgrammations, Eleve, Programmation, getCoursById } from "@/data/database";
+import Timetable from "@/components/eleves/Timetable";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const DetailsEleve = () => {
   const { id } = useParams<{ id: string }>();
@@ -72,85 +74,90 @@ const DetailsEleve = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-2xl">{eleve.prenom} {eleve.nom}</CardTitle>
-              <CardDescription>Niveau: {eleve.niveau}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground mb-1">Contact</h3>
-                  <p>{eleve.email}</p>
-                  <p>{eleve.telephone}</p>
+      <div className="grid grid-cols-1 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-2xl">{eleve.prenom} {eleve.nom}</CardTitle>
+            <CardDescription>Niveau: {eleve.niveau}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="info">
+              <TabsList className="mb-4">
+                <TabsTrigger value="info">Informations</TabsTrigger>
+                <TabsTrigger value="seances">Séances</TabsTrigger>
+                <TabsTrigger value="timetable">Emploi du temps</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="info" className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="font-medium text-sm text-muted-foreground mb-1">Contact</h3>
+                    <p>{eleve.email}</p>
+                    <p>{eleve.telephone}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-muted-foreground mb-1">Contact parents</h3>
+                    <p>{eleve.telParents}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-muted-foreground mb-1">Date d'inscription</h3>
+                    <p>{new Date(eleve.dateInscription).toLocaleDateString('fr-FR')}</p>
+                  </div>
+                  <div>
+                    <h3 className="font-medium text-sm text-muted-foreground mb-1">Adresse</h3>
+                    <p>{eleve.adresse || "Non renseignée"}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground mb-1">Contact parents</h3>
-                  <p>{eleve.telParents}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground mb-1">Date d'inscription</h3>
-                  <p>{new Date(eleve.dateInscription).toLocaleDateString('fr-FR')}</p>
-                </div>
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground mb-1">Adresse</h3>
-                  <p>{eleve.adresse || "Non renseignée"}</p>
-                </div>
-              </div>
-              {eleve.notes && (
-                <div>
-                  <h3 className="font-medium text-sm text-muted-foreground mb-1">Notes</h3>
-                  <p className="whitespace-pre-line">{eleve.notes}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CalendarRange className="h-5 w-5 mr-2" /> Séances programmées
-              </CardTitle>
-              <CardDescription>Cours auxquels l'élève est inscrit</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {programmations.length === 0 ? (
-                <p className="text-muted-foreground text-center py-4">
-                  Aucune séance programmée pour cet élève
-                </p>
-              ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Matière</TableHead>
-                      <TableHead>Durée</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {programmations.map((prog) => {
-                      const cours = getCoursById(prog.coursId);
-                      return (
-                        <TableRow key={prog.id}>
-                          <TableCell>
-                            {new Date(prog.date).toLocaleDateString('fr-FR')}{' '}
-                            {prog.heure}
-                          </TableCell>
-                          <TableCell>{cours?.matiere || "Cours inconnu"}</TableCell>
-                          <TableCell>{prog.duree} min</TableCell>
+                {eleve.notes && (
+                  <div>
+                    <h3 className="font-medium text-sm text-muted-foreground mb-1">Notes</h3>
+                    <p className="whitespace-pre-line">{eleve.notes}</p>
+                  </div>
+                )}
+              </TabsContent>
+              
+              <TabsContent value="seances">
+                <div className="space-y-4">
+                  <h3 className="font-medium mb-2">Séances programmées</h3>
+                  {programmations.length === 0 ? (
+                    <p className="text-muted-foreground text-center py-4">
+                      Aucune séance programmée pour cet élève
+                    </p>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Matière</TableHead>
+                          <TableHead>Durée</TableHead>
                         </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+                      </TableHeader>
+                      <TableBody>
+                        {programmations.map((prog) => {
+                          const cours = getCoursById(prog.coursId);
+                          return (
+                            <TableRow key={prog.id}>
+                              <TableCell>
+                                {new Date(prog.date).toLocaleDateString('fr-FR')}{' '}
+                                {prog.heure}
+                              </TableCell>
+                              <TableCell>{cours?.matiere || "Cours inconnu"}</TableCell>
+                              <TableCell>{prog.duree} min</TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  )}
+                </div>
+              </TabsContent>
+              
+              <TabsContent value="timetable">
+                <Timetable />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
 
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

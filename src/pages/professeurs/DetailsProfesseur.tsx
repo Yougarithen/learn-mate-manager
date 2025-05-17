@@ -97,7 +97,7 @@ const DetailsProfesseur = () => {
       </Button>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-2/3 space-y-6">
+        <div className="w-full space-y-6">
           <Card>
             <CardHeader className="pb-2">
               <div className="flex justify-between items-start">
@@ -209,49 +209,6 @@ const DetailsProfesseur = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="lg:w-1/3 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Statistiques</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-muted-foreground">Cours enseignés</span>
-                <span className="font-medium">{programmations.length}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-muted-foreground">Total d'élèves</span>
-                <span className="font-medium">{programmations.reduce((acc, prog) => acc + prog.elevesIds.length, 0)}</span>
-              </div>
-              <div className="flex justify-between py-2 border-b">
-                <span className="text-muted-foreground">Heures par semaine</span>
-                <span className="font-medium">{Math.round(programmations.reduce((acc, prog) => acc + (prog.duree / 60), 0) * 10) / 10}h</span>
-              </div>
-              <div className="flex justify-between py-2">
-                <span className="text-muted-foreground">Depuis</span>
-                <span className="font-medium">Septembre 2022</span>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Actions rapides</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              <Button className="w-full justify-start" variant="outline">
-                Assigner un cours
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                Envoyer un message
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                Générer un rapport
-              </Button>
             </CardContent>
           </Card>
         </div>

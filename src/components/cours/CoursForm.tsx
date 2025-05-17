@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Cours } from "@/data/database";
 import niveauxScolaires from "@/data/niveauxScolaires.json";
+import matieres from "@/data/matieres.json";
 
 const formSchema = z.object({
   matiere: z.string().min(2, {
@@ -63,9 +64,20 @@ const CoursForm = ({ onSubmit, defaultValues, mode }: CoursFormProps) => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Matière</FormLabel>
-                <FormControl>
-                  <Input placeholder="Mathématiques" {...field} />
-                </FormControl>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez une matière" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {matieres.map((matiere) => (
+                      <SelectItem key={matiere} value={matiere}>
+                        {matiere}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
