@@ -94,6 +94,13 @@ const DetailsCours = () => {
     setEleveToRemove(null);
   };
 
+  // Fonction pour obtenir le jour de la semaine
+  const getJourSemaine = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const joursSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+    return joursSemaine[date.getDay()];
+  };
+
   if (!cours) {
     return <div>Chargement...</div>;
   }
@@ -188,7 +195,7 @@ const DetailsCours = () => {
                         <TableCell>{eleve.nom}</TableCell>
                         <TableCell>{eleve.prenom}</TableCell>
                         <TableCell>{eleve.niveau}</TableCell>
-                        <TableCell>{new Date(prog.date).toLocaleDateString('fr-FR')} à {prog.heure}</TableCell>
+                        <TableCell>{getJourSemaine(prog.date)} à {prog.heure}</TableCell>
                         <TableCell className="text-right">
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
