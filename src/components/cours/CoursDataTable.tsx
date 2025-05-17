@@ -38,12 +38,6 @@ const CoursDataTable = ({ data, onDelete }: CoursDataTableProps) => {
 
   return (
     <>
-      <div className="flex justify-end mb-4">
-        <Button asChild>
-          <Link to="/cours/ajouter">Ajouter un cours</Link>
-        </Button>
-      </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
