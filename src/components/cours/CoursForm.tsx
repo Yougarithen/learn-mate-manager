@@ -20,9 +20,10 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Cours } from "@/data/database";
+import { Cours, Professeur, Salle, getProfesseurs, getSalles } from "@/data/database";
 import niveauxScolaires from "@/data/niveauxScolaires.json";
 import matieres from "@/data/matieres.json";
+import { useEffect, useState } from "react";
 
 const formSchema = z.object({
   matiere: z.string().min(2, {
@@ -35,22 +36,41 @@ const formSchema = z.object({
     message: "Le salaire horaire doit être d'au moins 10 DA.",
   }),
   description: z.string().optional(),
+  professeurId: z.string().min(1, {
+    message: "Veuillez sélectionner un professeur.",
+  }),
+  salleId: z.string().min(1, {
+    message: "Veuillez sélectionner une salle.",
+  }),
 });
 
+export type CoursFormData = z.infer<typeof formSchema>;
+
 interface CoursFormProps {
-  onSubmit: (data: Omit<Cours, "id">) => void;
-  defaultValues?: Omit<Cours, "id">;
+  onSubmit: (data: CoursFormData) => void;
+  defaultValues?: Partial<CoursFormData>;
   mode: "create" | "update";
 }
 
 const CoursForm = ({ onSubmit, defaultValues, mode }: CoursFormProps) => {
+  const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
+  const [salles, setSalles] = useState<Salle[]>([]);
+
+  useEffect(() => {
+    // Charger les professeurs et les salles depuis la base de données
+    setProfesseurs(getProfesseurs().filter(p => p.status === "actif"));
+    setSalles(getSalles().filter(s => s.status === "disponible"));
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: defaultValues || {
-      matiere: "",
-      niveau: "",
-      salaireParHeure: 2500,
-      description: "",
+    defaultValues: {
+      matiere: defaultValues?.matiere || "",
+      niveau: defaultValues?.niveau || "",
+      salaireParHeure: defaultValues?.salaireParHeure || 2500,
+      description: defaultValues?.description || "",
+      professeurId: defaultValues?.professeurId || "",
+      salleId: defaultValues?.salleId || "",
     },
   });
 
@@ -99,6 +119,58 @@ const CoursForm = ({ onSubmit, defaultValues, mode }: CoursFormProps) => {
                     {niveauxScolaires.map((niveau) => (
                       <SelectItem key={niveau} value={niveau}>
                         {niveau}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="professeurId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Professeur</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez un professeur" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {professeurs.map((prof) => (
+                      <SelectItem key={prof.id} value={prof.id}>
+                        {prof.prenom} {prof.nom} - {prof.specialite}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="salleId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Salle</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionnez une salle" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {salles.map((salle) => (
+                      <SelectItem key={salle.id} value={salle.id}>
+                        {salle.nom} (Capacité: {salle.capacite})
                       </SelectItem>
                     ))}
                   </SelectContent>

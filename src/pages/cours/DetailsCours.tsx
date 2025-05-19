@@ -8,6 +8,7 @@ import { ArrowLeft, Edit, UserMinus } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import EnrollStudentForm from "@/components/cours/EnrollStudentForm";
 
 const DetailsCours = () => {
   const { id } = useParams<{ id: string }>();
@@ -17,7 +18,7 @@ const DetailsCours = () => {
   const [programmations, setProgrammations] = useState<Programmation[]>([]);
   const [eleveToRemove, setEleveToRemove] = useState<{elevId: string, progId: string} | null>(null);
 
-  useEffect(() => {
+  const loadCourseData = () => {
     if (id) {
       const coursData = getCoursById(id);
       if (coursData) {
@@ -45,6 +46,10 @@ const DetailsCours = () => {
         navigate("/cours");
       }
     }
+  };
+
+  useEffect(() => {
+    loadCourseData();
   }, [id, navigate]);
 
   const handleRemoveEleve = (elevId: string, progId: string) => {
@@ -121,6 +126,10 @@ const DetailsCours = () => {
               Retour
             </Link>
           </Button>
+          <EnrollStudentForm 
+            coursId={cours.id} 
+            onEnrollSuccess={loadCourseData} 
+          />
           <Button asChild>
             <Link to={`/cours/modifier/${cours.id}`}>
               <Edit className="mr-2 h-4 w-4" />

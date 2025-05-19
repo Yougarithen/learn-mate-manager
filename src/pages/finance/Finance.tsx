@@ -3,10 +3,12 @@ import { useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ReceiptForm from "@/components/finance/ReceiptForm";
 import ReceiptHistory from "@/components/finance/ReceiptHistory";
+import { useEffect } from "react";
 
 const Finance = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get("tab") === "historique" ? "historique" : "nouveau-recu";
+  const preselectedEleveId = searchParams.get("eleveId");
 
   const handleTabChange = (value: string) => {
     setSearchParams(prev => {
@@ -19,6 +21,17 @@ const Finance = () => {
       return newParams;
     });
   };
+  
+  // Si on revient à l'onglet de l'historique, on supprime l'ID d'élève de l'URL
+  useEffect(() => {
+    if (defaultTab === "historique" && preselectedEleveId) {
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete("eleveId");
+        return newParams;
+      });
+    }
+  }, [defaultTab, preselectedEleveId, setSearchParams]);
 
   return (
     <div>
@@ -35,7 +48,7 @@ const Finance = () => {
           <TabsTrigger value="historique">Historique</TabsTrigger>
         </TabsList>
         <TabsContent value="nouveau-recu">
-          <ReceiptForm />
+          <ReceiptForm preselectedEleveId={preselectedEleveId} />
         </TabsContent>
         <TabsContent value="historique">
           <ReceiptHistory />

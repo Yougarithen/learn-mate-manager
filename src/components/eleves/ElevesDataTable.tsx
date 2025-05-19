@@ -1,7 +1,7 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Edit, Trash2, Search, Plus, UserRound } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { Edit, Trash2, Search, Plus, UserRound, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -18,6 +18,7 @@ const ElevesDataTable = ({ data, onDelete }: ElevesDataTableProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [eleveToDelete, setEleveToDelete] = useState<Eleve | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const navigate = useNavigate();
 
   const filteredData = data.filter(
     (eleve) =>
@@ -41,6 +42,11 @@ const ElevesDataTable = ({ data, onDelete }: ElevesDataTableProps) => {
         description: `${eleveToDelete.prenom} ${eleveToDelete.nom} a été supprimé`
       });
     }
+  };
+
+  const handleCreateReceipt = (eleveId: string) => {
+    // Naviguer vers la page de finances avec l'ID de l'élève préselectionné
+    navigate(`/finance?tab=nouveau-recu&eleveId=${eleveId}`);
   };
 
   return (
@@ -104,6 +110,16 @@ const ElevesDataTable = ({ data, onDelete }: ElevesDataTableProps) => {
                   <TableCell>{new Date(eleve.dateInscription).toLocaleDateString('fr-FR')}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8" 
+                        title="Générer un reçu"
+                        onClick={() => handleCreateReceipt(eleve.id)}
+                      >
+                        <Receipt className="h-4 w-4" />
+                        <span className="sr-only">Reçu</span>
+                      </Button>
                       <Button asChild variant="ghost" size="icon" className="h-8 w-8">
                         <Link to={`/eleves/modifier/${eleve.id}`}>
                           <Edit className="h-4 w-4" />
