@@ -9,7 +9,8 @@ import {
   Building,
   LogOut,
   Menu,
-  X
+  X,
+  Receipt
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -83,6 +84,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
     { href: "/cours", icon: BookOpen, title: "Cours" },
     { href: "/eleves", icon: GraduationCap, title: "Élèves" },
     { href: "/salles", icon: Building, title: "Salles" },
+    { href: "/finance", icon: Receipt, title: "Finances" },
   ];
 
   return (

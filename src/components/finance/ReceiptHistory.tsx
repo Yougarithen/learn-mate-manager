@@ -80,7 +80,7 @@ const ReceiptHistory = () => {
           </div>
           
           <div class="total">
-            Total: ${paiement.montant.toFixed(2)} €
+            Total: ${paiement.montant.toFixed(2)} DA
           </div>
           
           <div class="footer">
@@ -139,7 +139,7 @@ const ReceiptHistory = () => {
                     </TableCell>
                     <TableCell>{eleve ? `${eleve.prenom} ${eleve.nom}` : ""}</TableCell>
                     <TableCell>{coursNames}</TableCell>
-                    <TableCell>{paiement ? `${paiement.montant.toFixed(2)} €` : ""}</TableCell>
+                    <TableCell>{paiement ? `${paiement.montant.toFixed(2)} DA` : ""}</TableCell>
                     <TableCell>
                       {paiement ? (
                         paiement.methode.charAt(0).toUpperCase() + paiement.methode.slice(1)

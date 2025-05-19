@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { getCoursById, getCours, getEleveById, getEleves, addPaiement, addRecuPaiement, Cours, Eleve, Paiement, RecuPaiement } from "@/data/database";
+import { getCoursById, getCours, getEleveById, getEleves, addPaiement, addRecuPaiement, Cours, Eleve, Paiement, RecuPaiement, getProgrammations } from "@/data/database";
 
 const formSchema = z.object({
   eleveId: z.string().min(1, { message: "Veuillez sélectionner un élève" }),
@@ -39,6 +39,7 @@ type FormValues = z.infer<typeof formSchema>;
 const ReceiptForm = () => {
   const [eleves, setEleves] = useState<Eleve[]>([]);
   const [cours, setCours] = useState<Cours[]>([]);
+  const [filteredCours, setFilteredCours] = useState<Cours[]>([]);
   const [selectedEleve, setSelectedEleve] = useState<Eleve | null>(null);
   const [totalMontant, setTotalMontant] = useState(0);
 
@@ -63,10 +64,27 @@ const ReceiptForm = () => {
     if (eleveId) {
       const eleve = getEleveById(eleveId);
       setSelectedEleve(eleve || null);
+      
+      // Filtrer les cours pour n'afficher que ceux où l'élève est inscrit
+      const programmations = getProgrammations();
+      const coursInscrits = programmations
+        .filter(prog => prog.elevesIds.includes(eleveId))
+        .map(prog => prog.coursId);
+      
+      // Éliminer les doublons
+      const coursIdsUniques = [...new Set(coursInscrits)];
+      
+      // Récupérer les détails des cours
+      const coursFiltered = cours.filter(c => coursIdsUniques.includes(c.id));
+      setFilteredCours(coursFiltered);
+      
+      // Réinitialiser la sélection des cours
+      form.setValue("coursIds", []);
     } else {
       setSelectedEleve(null);
+      setFilteredCours([]);
     }
-  }, [form.watch("eleveId")]);
+  }, [form.watch("eleveId"), cours]);
 
   // Calculer le montant total en fonction des cours et de la durée sélectionnés
   useEffect(() => {
@@ -124,7 +142,7 @@ const ReceiptForm = () => {
     
     if (newRecu) {
       toast.success("Reçu généré avec succès", {
-        description: `Un reçu de ${totalMontant} € a été généré pour ${selectedEleve?.prenom} ${selectedEleve?.nom}`
+        description: `Un reçu de ${totalMontant.toFixed(2)} DA a été généré pour ${selectedEleve?.prenom} ${selectedEleve?.nom}`
       });
       
       // Imprimer le reçu
@@ -156,7 +174,7 @@ const ReceiptForm = () => {
       }
     })();
     
-    const paiement = totalMontant.toFixed(2) + " €";
+    const paiement = totalMontant.toFixed(2) + " DA";
     const dateStr = format(new Date(), "dd/MM/yyyy");
     
     // Créer une fenêtre d'impression
@@ -267,29 +285,35 @@ const ReceiptForm = () => {
                 <FormItem>
                   <FormLabel>Cours</FormLabel>
                   <div className="space-y-2">
-                    {cours.map((cours) => (
-                      <div key={cours.id} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={`cours-${cours.id}`}
-                          value={cours.id}
-                          onChange={(e) => {
-                            const coursIds = form.getValues("coursIds") || [];
-                            if (e.target.checked) {
-                              form.setValue("coursIds", [...coursIds, cours.id]);
-                            } else {
-                              form.setValue(
-                                "coursIds",
-                                coursIds.filter((id) => id !== cours.id)
-                              );
-                            }
-                          }}
-                        />
-                        <label htmlFor={`cours-${cours.id}`}>
-                          {cours.matiere} ({cours.niveau}) - {cours.salaireParHeure} €/h
-                        </label>
+                    {filteredCours.length > 0 ? (
+                      filteredCours.map((cours) => (
+                        <div key={cours.id} className="flex items-center space-x-2">
+                          <input
+                            type="checkbox"
+                            id={`cours-${cours.id}`}
+                            value={cours.id}
+                            onChange={(e) => {
+                              const coursIds = form.getValues("coursIds") || [];
+                              if (e.target.checked) {
+                                form.setValue("coursIds", [...coursIds, cours.id]);
+                              } else {
+                                form.setValue(
+                                  "coursIds",
+                                  coursIds.filter((id) => id !== cours.id)
+                                );
+                              }
+                            }}
+                          />
+                          <label htmlFor={`cours-${cours.id}`}>
+                            {cours.matiere} ({cours.niveau}) - {cours.salaireParHeure} DA/h
+                          </label>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-muted-foreground">
+                        {selectedEleve ? "Cet élève n'est inscrit à aucun cours" : "Veuillez d'abord sélectionner un élève"}
                       </div>
-                    ))}
+                    )}
                   </div>
                   <FormMessage />
                 </FormItem>
@@ -365,7 +389,7 @@ const ReceiptForm = () => {
             />
             
             <div className="bg-muted p-4 rounded-md">
-              <div className="text-lg font-semibold">Total à payer: {totalMontant.toFixed(2)} €</div>
+              <div className="text-lg font-semibold">Total à payer: {totalMontant.toFixed(2)} DA</div>
             </div>
             
             <div className="flex justify-end gap-4">
