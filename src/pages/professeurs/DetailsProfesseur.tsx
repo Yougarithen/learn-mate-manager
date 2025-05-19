@@ -16,6 +16,7 @@ import {
   Professeur,
   Programmation 
 } from "@/data/database";
+import PaySlipGenerator from "@/components/professeurs/PaySlipGenerator";
 
 const DetailsProfesseur = () => {
   const { id } = useParams<{ id: string }>();
@@ -113,6 +114,7 @@ const DetailsProfesseur = () => {
                   </CardDescription>
                 </div>
                 <div className="flex space-x-2">
+                  <PaySlipGenerator professeur={professeur} />
                   <Button asChild variant="outline" size="sm">
                     <Link to={`/professeurs/modifier/${professeur.id}`}>
                       <Edit className="h-4 w-4 mr-2" />

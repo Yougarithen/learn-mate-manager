@@ -1,7 +1,9 @@
 
-import { UsersRound, GraduationCap, BookOpen, Building } from "lucide-react";
+import { UsersRound, GraduationCap, BookOpen, Building, Receipt } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getProfesseurs, getEleves, getCours, getSalles } from "@/data/database";
+import { getProfesseurs, getEleves, getCours, getSalles, getRecuPaiements } from "@/data/database";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -9,6 +11,7 @@ const Dashboard = () => {
     eleves: 0,
     cours: 0,
     salles: 0,
+    paiements: 0,
     sallesOccupation: "0"
   });
 
@@ -18,6 +21,7 @@ const Dashboard = () => {
     const eleves = getEleves();
     const cours = getCours();
     const salles = getSalles();
+    const paiements = getRecuPaiements();
     
     // Calcul du taux d'occupation des salles (simulation)
     const sallesDisponibles = salles.filter(salle => salle.status === "disponible").length;
@@ -30,6 +34,7 @@ const Dashboard = () => {
       eleves: eleves.length,
       cours: cours.length,
       salles: salles.length,
+      paiements: paiements.length,
       sallesOccupation: `${tauxOccupation}%`
     });
   }, []);
@@ -43,7 +48,7 @@ const Dashboard = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard 
           icon={<UsersRound className="h-5 w-5" />} 
           iconColor="bg-blue-500" 
@@ -72,6 +77,40 @@ const Dashboard = () => {
           value={stats.salles.toString()} 
           trend={`${stats.sallesOccupation} d'occupation`} 
         />
+      </div>
+
+      {/* Section de gestion des paiements */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold">Gestion des paiements</h2>
+          <Button asChild variant="outline" size="sm">
+            <Link to="/finance">
+              <Receipt className="h-4 w-4 mr-2" />
+              Voir tous les paiements
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard 
+            icon={<Receipt className="h-5 w-5" />} 
+            iconColor="bg-green-500" 
+            title="Reçus émis" 
+            value={stats.paiements.toString()} 
+            trend={stats.paiements > 0 ? `Ce mois: ${Math.min(stats.paiements, 5)}` : "Aucun reçu"} 
+          />
+          <div className="p-4 border rounded-lg bg-card">
+            <h3 className="text-muted-foreground text-sm font-medium mb-2">Actions rapides</h3>
+            <div className="flex gap-2">
+              <Button asChild variant="outline" size="sm">
+                <Link to="/finance">Nouveau reçu</Link>
+              </Button>
+              <Button asChild variant="outline" size="sm">
+                <Link to="/finance?tab=historique">Historique</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
