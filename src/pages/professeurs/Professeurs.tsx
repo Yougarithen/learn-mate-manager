@@ -1,22 +1,75 @@
 
 import { useState, useEffect } from "react";
 import ProfesseursDataTable from "@/components/professeurs/ProfesseursDataTable";
-import { getProfesseurs, deleteProfesseur, Professeur } from "@/data/database";
+import { toast } from "sonner";
+import axios from "axios";
+
+interface Professeur {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  diplome: string;
+  specialite: string;
+  status: "actif" | "inactif";
+  adresse?: string;
+  biographie?: string;
+}
 
 const Professeurs = () => {
   const [professeurs, setProfesseurs] = useState<Professeur[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchProfesseurs = () => {
+    setLoading(true);
+    axios.get("http://localhost:3000/api/professeurs")
+      .then(response => {
+        setProfesseurs(response.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Erreur lors du chargement des professeurs:", err);
+        setError("Impossible de charger la liste des professeurs");
+        setLoading(false);
+        toast.error("Erreur de chargement", {
+          description: "Impossible de récupérer la liste des professeurs"
+        });
+      });
+  };
 
   useEffect(() => {
-    // Chargement des données depuis notre "base de données"
-    setProfesseurs(getProfesseurs());
+    fetchProfesseurs();
   }, []);
 
   const handleDelete = (id: string) => {
-    const success = deleteProfesseur(id);
-    if (success) {
-      setProfesseurs(getProfesseurs());
-    }
+    axios.delete(`http://localhost:3000/api/professeurs/${id}`)
+      .then(() => {
+        fetchProfesseurs();
+        toast.success("Professeur supprimé", {
+          description: "Le professeur a été supprimé avec succès",
+        });
+      })
+      .catch(err => {
+        console.error("Erreur lors de la suppression du professeur:", err);
+        toast.error("Erreur de suppression", {
+          description: "Impossible de supprimer le professeur"
+        });
+      });
   };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Chargement...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div>

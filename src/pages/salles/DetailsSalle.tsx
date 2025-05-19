@@ -1,30 +1,60 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { getSalleById, Salle } from "@/data/database";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Edit } from "lucide-react";
+import axios from "axios";
+
+interface Salle {
+  id: string;
+  nom: string;
+  capacite: number;
+  adresse?: string;
+  equipement?: string;
+  status: "disponible" | "indisponible";
+}
 
 const DetailsSalle = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [salle, setSalle] = useState<Salle | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
-      const salleData = getSalleById(id);
-      if (salleData) {
-        setSalle(salleData);
-      } else {
-        navigate("/salles");
-      }
+      setLoading(true);
+      axios.get(`http://localhost:3000/api/salles/${id}`)
+        .then(response => {
+          setSalle(response.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Erreur lors du chargement de la salle:", err);
+          setError("Impossible de charger les détails de la salle");
+          setLoading(false);
+          if (err.response && err.response.status === 404) {
+            navigate("/salles");
+          }
+        });
     }
   }, [id, navigate]);
 
-  if (!salle) {
-    return <div>Chargement...</div>;
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Chargement...</div>;
+  }
+
+  if (error || !salle) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64">
+        <p className="text-red-500">{error || "Salle non trouvée"}</p>
+        <Button variant="outline" className="mt-4" asChild>
+          <Link to="/salles">Retour à la liste des salles</Link>
+        </Button>
+      </div>
+    );
   }
 
   return (
@@ -73,7 +103,7 @@ const DetailsSalle = () => {
 
           <div>
             <p className="text-sm font-medium text-muted-foreground">Adresse</p>
-            <p>{salle.adresse}</p>
+            <p>{salle.adresse || "Non spécifiée"}</p>
           </div>
 
           <div>

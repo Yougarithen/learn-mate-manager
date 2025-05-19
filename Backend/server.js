@@ -39,7 +39,13 @@ function initDatabase() {
     status TEXT NOT NULL,
     adresse TEXT,
     biographie TEXT
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table professeurs:', err.message);
+    } else {
+      console.log('Table professeurs créée ou déjà existante');
+    }
+  });
 
   // Table Eleves
   db.run(`CREATE TABLE IF NOT EXISTS eleves (
@@ -53,7 +59,13 @@ function initDatabase() {
     dateInscription TEXT NOT NULL,
     adresse TEXT,
     notes TEXT
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table eleves:', err.message);
+    } else {
+      console.log('Table eleves créée ou déjà existante');
+    }
+  });
 
   // Table Cours
   db.run(`CREATE TABLE IF NOT EXISTS cours (
@@ -62,7 +74,13 @@ function initDatabase() {
     niveau TEXT NOT NULL,
     salaireParHeure REAL NOT NULL,
     description TEXT
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table cours:', err.message);
+    } else {
+      console.log('Table cours créée ou déjà existante');
+    }
+  });
 
   // Table Salles
   db.run(`CREATE TABLE IF NOT EXISTS salles (
@@ -72,7 +90,13 @@ function initDatabase() {
     adresse TEXT,
     equipement TEXT,
     status TEXT NOT NULL
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table salles:', err.message);
+    } else {
+      console.log('Table salles créée ou déjà existante');
+    }
+  });
 
   // Table Programmations
   db.run(`CREATE TABLE IF NOT EXISTS programmations (
@@ -86,7 +110,13 @@ function initDatabase() {
     FOREIGN KEY (coursId) REFERENCES cours (id),
     FOREIGN KEY (professeurId) REFERENCES professeurs (id),
     FOREIGN KEY (salleId) REFERENCES salles (id)
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table programmations:', err.message);
+    } else {
+      console.log('Table programmations créée ou déjà existante');
+    }
+  });
 
   // Table Eleves_Programmations (relation many-to-many)
   db.run(`CREATE TABLE IF NOT EXISTS eleves_programmations (
@@ -95,7 +125,13 @@ function initDatabase() {
     PRIMARY KEY (eleveId, programmationId),
     FOREIGN KEY (eleveId) REFERENCES eleves (id),
     FOREIGN KEY (programmationId) REFERENCES programmations (id)
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table eleves_programmations:', err.message);
+    } else {
+      console.log('Table eleves_programmations créée ou déjà existante');
+    }
+  });
 
   // Table Paiements
   db.run(`CREATE TABLE IF NOT EXISTS paiements (
@@ -104,7 +140,13 @@ function initDatabase() {
     date TEXT NOT NULL,
     methode TEXT NOT NULL,
     reference TEXT NOT NULL
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table paiements:', err.message);
+    } else {
+      console.log('Table paiements créée ou déjà existante');
+    }
+  });
 
   // Table FichePaies
   db.run(`CREATE TABLE IF NOT EXISTS fichePaies (
@@ -116,7 +158,13 @@ function initDatabase() {
     paiementId TEXT NOT NULL,
     FOREIGN KEY (professeurId) REFERENCES professeurs (id),
     FOREIGN KEY (paiementId) REFERENCES paiements (id)
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table fichePaies:', err.message);
+    } else {
+      console.log('Table fichePaies créée ou déjà existante');
+    }
+  });
 
   // Table Programmations_FichePaies (relation many-to-many)
   db.run(`CREATE TABLE IF NOT EXISTS programmations_fichePaies (
@@ -125,7 +173,13 @@ function initDatabase() {
     PRIMARY KEY (programmationId, fichePaieId),
     FOREIGN KEY (programmationId) REFERENCES programmations (id),
     FOREIGN KEY (fichePaieId) REFERENCES fichePaies (id)
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table programmations_fichePaies:', err.message);
+    } else {
+      console.log('Table programmations_fichePaies créée ou déjà existante');
+    }
+  });
 
   // Table RecuPaiements
   db.run(`CREATE TABLE IF NOT EXISTS recuPaiements (
@@ -135,7 +189,13 @@ function initDatabase() {
     date TEXT NOT NULL,
     FOREIGN KEY (eleveId) REFERENCES eleves (id),
     FOREIGN KEY (paiementId) REFERENCES paiements (id)
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table recuPaiements:', err.message);
+    } else {
+      console.log('Table recuPaiements créée ou déjà existante');
+    }
+  });
 
   // Table Cours_RecuPaiements (relation many-to-many)
   db.run(`CREATE TABLE IF NOT EXISTS cours_recuPaiements (
@@ -144,7 +204,13 @@ function initDatabase() {
     PRIMARY KEY (coursId, recuPaiementId),
     FOREIGN KEY (coursId) REFERENCES cours (id),
     FOREIGN KEY (recuPaiementId) REFERENCES recuPaiements (id)
-  )`);
+  )`, [], (err) => {
+    if (err) {
+      console.error('Erreur lors de la création de la table cours_recuPaiements:', err.message);
+    } else {
+      console.log('Table cours_recuPaiements créée ou déjà existante');
+    }
+  });
 }
 
 // Exportation de la connexion à la base de données pour les routes

@@ -6,6 +6,7 @@ const { db } = require('../server');
 exports.getAllCours = (req, res) => {
   db.all('SELECT * FROM cours', [], (err, rows) => {
     if (err) {
+      console.error('Erreur lors de la récupération des cours:', err.message);
       return res.status(500).json({ error: err.message });
     }
     res.json(rows);
@@ -17,12 +18,38 @@ exports.getCoursById = (req, res) => {
   const { id } = req.params;
   db.get('SELECT * FROM cours WHERE id = ?', [id], (err, row) => {
     if (err) {
+      console.error('Erreur lors de la récupération du cours:', err.message);
       return res.status(500).json({ error: err.message });
     }
     if (!row) {
       return res.status(404).json({ error: 'Cours non trouvé' });
     }
     res.json(row);
+  });
+};
+
+// Récupérer les cours d'un élève
+exports.getEleveCours = (req, res) => {
+  const { eleveId } = req.params;
+  
+  const sql = `
+    SELECT c.* FROM cours c
+    JOIN cours_recuPaiements crp ON c.id = crp.coursId
+    JOIN recuPaiements rp ON crp.recuPaiementId = rp.id
+    WHERE rp.eleveId = ?
+    UNION
+    SELECT c.* FROM cours c
+    JOIN programmations p ON c.id = p.coursId
+    JOIN eleves_programmations ep ON p.id = ep.programmationId
+    WHERE ep.eleveId = ?
+  `;
+  
+  db.all(sql, [eleveId, eleveId], (err, rows) => {
+    if (err) {
+      console.error('Erreur lors de la récupération des cours de l\'élève:', err.message);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(rows);
   });
 };
 
@@ -41,11 +68,13 @@ exports.createCours = (req, res) => {
     [id, matiere, niveau, salaireParHeure, description],
     function(err) {
       if (err) {
+        console.error('Erreur lors de la création du cours:', err.message);
         return res.status(500).json({ error: err.message });
       }
       
       db.get('SELECT * FROM cours WHERE id = ?', [id], (err, row) => {
         if (err) {
+          console.error('Erreur lors de la récupération du nouveau cours:', err.message);
           return res.status(500).json({ error: err.message });
         }
         res.status(201).json(row);
@@ -68,6 +97,7 @@ exports.updateCours = (req, res) => {
     [matiere, niveau, salaireParHeure, description, id],
     function(err) {
       if (err) {
+        console.error('Erreur lors de la mise à jour du cours:', err.message);
         return res.status(500).json({ error: err.message });
       }
       
@@ -77,6 +107,7 @@ exports.updateCours = (req, res) => {
       
       db.get('SELECT * FROM cours WHERE id = ?', [id], (err, row) => {
         if (err) {
+          console.error('Erreur lors de la récupération du cours mis à jour:', err.message);
           return res.status(500).json({ error: err.message });
         }
         res.json(row);
@@ -91,6 +122,7 @@ exports.deleteCours = (req, res) => {
   
   db.run('DELETE FROM cours WHERE id = ?', [id], function(err) {
     if (err) {
+      console.error('Erreur lors de la suppression du cours:', err.message);
       return res.status(500).json({ error: err.message });
     }
     
@@ -99,22 +131,5 @@ exports.deleteCours = (req, res) => {
     }
     
     res.json({ message: 'Cours supprimé avec succès' });
-  });
-};
-
-// Récupérer les cours d'un élève
-exports.getEleveCours = (req, res) => {
-  const { eleveId } = req.params;
-  
-  db.all(`
-    SELECT DISTINCT c.* FROM cours c
-    JOIN programmations p ON c.id = p.coursId
-    JOIN eleves_programmations ep ON p.id = ep.programmationId
-    WHERE ep.eleveId = ?
-  `, [eleveId], (err, rows) => {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-    res.json(rows);
   });
 };

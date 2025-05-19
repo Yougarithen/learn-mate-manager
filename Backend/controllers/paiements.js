@@ -6,6 +6,7 @@ const { db } = require('../server');
 exports.getAllPaiements = (req, res) => {
   db.all('SELECT * FROM paiements', [], (err, rows) => {
     if (err) {
+      console.error('Erreur lors de la récupération des paiements:', err.message);
       return res.status(500).json({ error: err.message });
     }
     res.json(rows);
@@ -17,6 +18,7 @@ exports.getPaiementById = (req, res) => {
   const { id } = req.params;
   db.get('SELECT * FROM paiements WHERE id = ?', [id], (err, row) => {
     if (err) {
+      console.error('Erreur lors de la récupération du paiement:', err.message);
       return res.status(500).json({ error: err.message });
     }
     if (!row) {
@@ -42,11 +44,13 @@ exports.createPaiement = (req, res) => {
     [id, montant, date, methode, ref],
     function(err) {
       if (err) {
+        console.error('Erreur lors de la création du paiement:', err.message);
         return res.status(500).json({ error: err.message });
       }
       
       db.get('SELECT * FROM paiements WHERE id = ?', [id], (err, row) => {
         if (err) {
+          console.error('Erreur lors de la récupération du nouveau paiement:', err.message);
           return res.status(500).json({ error: err.message });
         }
         res.status(201).json(row);
