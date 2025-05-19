@@ -25,8 +25,8 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { getEleves, getCours, getProgrammationsForEleve, addPaiement, addRecuPaiement, getCoursById } from "@/data/database";
-import ReceiptGenerator from "@/components/eleves/ReceiptGenerator";
+import axios from "axios";
+import { Printer } from "lucide-react";
 
 const formSchema = z.object({
   eleveId: z.string().min(1, {
@@ -48,11 +48,35 @@ interface ReceiptFormProps {
   preselectedEleveId: string | null;
 }
 
+interface Eleve {
+  id: string;
+  nom: string;
+  prenom: string;
+  niveau: string;
+}
+
+interface Cours {
+  id: string;
+  matiere: string;
+  niveau: string;
+  salaireParHeure: number;
+}
+
+interface ReceiptData {
+  id: string;
+  eleve: Eleve;
+  cours: Cours[];
+  montant: number;
+  methode: string;
+  reference: string;
+  date: string;
+}
+
 const ReceiptForm = ({ preselectedEleveId }: ReceiptFormProps) => {
-  const [eleves, setEleves] = useState<any[]>([]);
-  const [coursDisponibles, setCoursDisponibles] = useState<any[]>([]);
+  const [eleves, setEleves] = useState<Eleve[]>([]);
+  const [coursDisponibles, setCoursDisponibles] = useState<Cours[]>([]);
   const [selectedCoursIds, setSelectedCoursIds] = useState<string[]>([]);
-  const [receiptData, setReceiptData] = useState<any | null>(null);
+  const [receiptData, setReceiptData] = useState<ReceiptData | null>(null);
   const [total, setTotal] = useState(0);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,22 +95,18 @@ const ReceiptForm = ({ preselectedEleveId }: ReceiptFormProps) => {
   // Quand l'élève change, mettre à jour la liste des cours disponibles
   useEffect(() => {
     if (watchEleveId) {
-      // Récupérer les programmations de l'élève
-      const programmations = getProgrammationsForEleve(watchEleveId);
-      
-      // Extraire les IDs de cours uniques
-      const coursIds = new Set<string>();
-      programmations.forEach(prog => coursIds.add(prog.coursId));
-      
-      // Récupérer les détails des cours
-      const coursEleve = Array.from(coursIds)
-        .map(id => getCoursById(id))
-        .filter(cours => cours !== undefined);
-      
-      setCoursDisponibles(coursEleve as any[]);
-      form.setValue("coursIds", []);
-      setSelectedCoursIds([]);
-      setTotal(0);
+      // Récupérer les cours de l'élève via l'API
+      axios.get(`http://localhost:3000/api/cours/eleve/${watchEleveId}`)
+        .then(response => {
+          setCoursDisponibles(response.data);
+          form.setValue("coursIds", []);
+          setSelectedCoursIds([]);
+          setTotal(0);
+        })
+        .catch(error => {
+          console.error("Erreur lors de la récupération des cours:", error);
+          setCoursDisponibles([]);
+        });
     } else {
       setCoursDisponibles([]);
     }
@@ -94,18 +114,28 @@ const ReceiptForm = ({ preselectedEleveId }: ReceiptFormProps) => {
 
   // Initialiser avec les élèves depuis la base de données
   useEffect(() => {
-    setEleves(getEleves());
-    
-    // Si un élève est préselectionné, charger ses cours
-    if (preselectedEleveId) {
-      const programmations = getProgrammationsForEleve(preselectedEleveId);
-      const coursIds = new Set<string>();
-      programmations.forEach(prog => coursIds.add(prog.coursId));
-      const coursEleve = Array.from(coursIds)
-        .map(id => getCoursById(id))
-        .filter(cours => cours !== undefined);
-      setCoursDisponibles(coursEleve as any[]);
-    }
+    // Charger la liste des élèves
+    axios.get('http://localhost:3000/api/eleves')
+      .then(response => {
+        setEleves(response.data);
+        
+        // Si un élève est préselectionné, charger ses cours
+        if (preselectedEleveId) {
+          axios.get(`http://localhost:3000/api/cours/eleve/${preselectedEleveId}`)
+            .then(coursResponse => {
+              setCoursDisponibles(coursResponse.data);
+            })
+            .catch(error => {
+              console.error("Erreur lors de la récupération des cours:", error);
+            });
+        }
+      })
+      .catch(error => {
+        console.error("Erreur lors de la récupération des élèves:", error);
+        toast.error("Erreur de connexion", {
+          description: "Impossible de charger la liste des élèves."
+        });
+      });
   }, [preselectedEleveId]);
 
   const handleSelectCours = (coursId: string) => {
@@ -131,52 +161,183 @@ const ReceiptForm = ({ preselectedEleveId }: ReceiptFormProps) => {
     form.setValue("montant", newTotal);
   };
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    // Créer un paiement
-    const paiement = addPaiement({
-      montant: data.montant,
-      date: new Date().toISOString(),
-      methode: data.methode,
-      reference: data.reference || `REF-${Date.now()}`
-    });
+  const printReceipt = () => {
+    if (!receiptData) return;
+
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      toast.error("Impossible d'ouvrir la fenêtre d'impression", {
+        description: "Veuillez autoriser les popups pour ce site"
+      });
+      return;
+    }
+
+    const coursesText = receiptData.cours.map(c => `${c.matiere} (${c.niveau})`).join(", ");
     
-    // Créer un reçu de paiement
-    const recu = addRecuPaiement({
-      eleveId: data.eleveId,
-      paiementId: paiement.id,
-      coursIds: data.coursIds,
-      date: new Date().toISOString()
-    });
+    printWindow.document.write(`
+      <html>
+      <head>
+        <title>Reçu de Paiement - ${receiptData.eleve.prenom} ${receiptData.eleve.nom}</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+          .receipt { width: 80mm; margin: 0 auto; padding: 10mm; border: 1px solid #ccc; }
+          .header { text-align: center; margin-bottom: 20px; }
+          .logo { font-size: 24px; font-weight: bold; }
+          .title { margin: 10px 0; }
+          .info { margin-bottom: 20px; }
+          .info-row { margin-bottom: 5px; }
+          .label { font-weight: bold; }
+          .value { }
+          .courses { margin-bottom: 20px; }
+          .payment-details { margin-bottom: 20px; }
+          .total { font-size: 18px; font-weight: bold; margin: 20px 0; text-align: right; }
+          .footer { text-align: center; font-size: 12px; margin-top: 30px; }
+        </style>
+      </head>
+      <body>
+        <div class="receipt">
+          <div class="header">
+            <div class="logo">Centre de Soutien Scolaire</div>
+            <div class="title">Reçu de Paiement</div>
+            <div class="reference">N° ${receiptData.reference}</div>
+          </div>
+          
+          <div class="info">
+            <div class="info-row"><span class="label">Date:</span> <span class="value">${receiptData.date}</span></div>
+            <div class="info-row"><span class="label">Élève:</span> <span class="value">${receiptData.eleve.prenom} ${receiptData.eleve.nom}</span></div>
+            <div class="info-row"><span class="label">Niveau:</span> <span class="value">${receiptData.eleve.niveau}</span></div>
+          </div>
+          
+          <div class="payment-details">
+            <div class="label">Détails du paiement:</div>
+            <div class="info-row"><span class="label">Mode de paiement:</span> <span class="value">${receiptData.methode}</span></div>
+          </div>
+          
+          <div class="courses">
+            <div class="label">Cours:</div>
+            <div class="value">${coursesText}</div>
+          </div>
+          
+          <div class="total">
+            Total: ${receiptData.montant.toFixed(2)} DA
+          </div>
+          
+          <div class="footer">
+            Merci pour votre confiance !<br>
+            Centre de Soutien Scolaire
+          </div>
+        </div>
+        <script>
+          window.onload = function() {
+            window.print();
+          }
+        </script>
+      </body>
+      </html>
+    `);
     
-    // Préparer les données pour le reçu
-    const eleve = eleves.find(e => e.id === data.eleveId);
-    const coursPaies = data.coursIds.map(id => coursDisponibles.find(c => c.id === id));
-    
-    setReceiptData({
-      eleve,
-      cours: coursPaies,
-      montant: data.montant,
-      methode: data.methode,
-      reference: paiement.reference,
-      date: format(new Date(), "PPP", { locale: fr }),
-      numero: recu.id
-    });
-    
-    toast.success("Paiement enregistré", {
-      description: `Reçu créé pour ${eleve?.prenom} ${eleve?.nom}`
-    });
+    printWindow.document.close();
+  };
+
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    try {
+      // Appeler l'API pour créer un reçu de paiement
+      const response = await axios.post('http://localhost:3000/api/recuPaiements', {
+        eleveId: data.eleveId,
+        coursIds: data.coursIds,
+        montant: data.montant,
+        methode: data.methode,
+        reference: data.reference,
+        date: new Date().toISOString()
+      });
+      
+      // Récupérer l'élève et les cours pour afficher le reçu
+      const eleve = eleves.find(e => e.id === data.eleveId);
+      const coursSelected = data.coursIds.map(id => coursDisponibles.find(c => c.id === id)).filter(Boolean) as Cours[];
+      
+      // Préparer les données du reçu
+      setReceiptData({
+        id: response.data.id,
+        eleve: eleve as Eleve,
+        cours: coursSelected,
+        montant: data.montant,
+        methode: data.methode,
+        reference: response.data.reference || `REF-${Date.now()}`,
+        date: format(new Date(), "PPP", { locale: fr })
+      });
+      
+      toast.success("Paiement enregistré", {
+        description: `Reçu créé pour ${eleve?.prenom} ${eleve?.nom}`
+      });
+    } catch (error) {
+      console.error("Erreur lors de la création du reçu:", error);
+      toast.error("Erreur lors de la création du reçu", {
+        description: "Une erreur s'est produite. Veuillez réessayer."
+      });
+    }
   };
 
   return (
     <div className="space-y-6">
       {receiptData ? (
         <div className="space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setReceiptData(null)}>
               Nouveau paiement
             </Button>
+            <Button onClick={printReceipt}>
+              <Printer className="mr-2 h-4 w-4" />
+              Imprimer le reçu
+            </Button>
           </div>
-          <ReceiptGenerator data={receiptData} />
+          
+          <Card>
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold">Reçu de paiement</h2>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <p className="text-sm font-semibold">Élève</p>
+                    <p>{receiptData.eleve.prenom} {receiptData.eleve.nom}</p>
+                    <p className="text-sm text-muted-foreground">{receiptData.eleve.niveau}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold">Date</p>
+                    <p>{receiptData.date}</p>
+                    <p className="text-sm text-muted-foreground">Réf: {receiptData.reference}</p>
+                  </div>
+                </div>
+                
+                <Separator />
+                
+                <div>
+                  <p className="text-sm font-semibold mb-2">Cours</p>
+                  <ul className="space-y-1">
+                    {receiptData.cours.map(cours => (
+                      <li key={cours.id} className="flex justify-between">
+                        <span>{cours.matiere} ({cours.niveau})</span>
+                        <span>{cours.salaireParHeure} DA</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                <Separator />
+                
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-semibold">Méthode de paiement</p>
+                    <p className="capitalize">{receiptData.methode}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-semibold">Total</p>
+                    <p className="text-xl font-bold">{receiptData.montant} DA</p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       ) : (
         <Form {...form}>
