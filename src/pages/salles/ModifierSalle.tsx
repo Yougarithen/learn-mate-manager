@@ -1,52 +1,75 @@
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import SalleForm from "@/components/salles/SalleForm";
-import { getSalleById, updateSalle, Salle } from "@/data/database";
+import axios from "axios";
+
+interface Salle {
+  id: string;
+  nom: string;
+  capacite: number;
+  adresse?: string;
+  equipement?: string;
+  status: "disponible" | "indisponible";
+}
+
+interface SalleFormData {
+  nom: string;
+  capacite: number;
+  adresse?: string;
+  equipement?: string;
+  status: "disponible" | "indisponible";
+}
 
 const ModifierSalle = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [salle, setSalle] = useState<Salle | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      const salleData = getSalleById(id);
-      if (salleData) {
-        setSalle(salleData);
-      } else {
-        toast.error("Salle introuvable");
-        navigate("/salles");
-      }
+      axios.get(`http://localhost:3000/api/salles/${id}`)
+        .then(response => {
+          setSalle(response.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Erreur lors du chargement de la salle:", err);
+          toast.error("Salle introuvable");
+          navigate("/salles");
+        });
     }
   }, [id, navigate]);
 
-  const handleSubmit = (salleData: Omit<Salle, "id">) => {
-    if (id) {
-      // Mise à jour de la salle dans notre "base de données"
-      const updatedSalle = updateSalle(id, salleData);
+  const handleSubmit = async (salleData: SalleFormData) => {
+    try {
+      // Mise à jour de la salle via l'API
+      await axios.put(`http://localhost:3000/api/salles/${id}`, salleData);
       
-      if (updatedSalle) {
-        // Notification de succès
-        toast.success("Salle modifiée", {
-          description: `La salle ${updatedSalle.nom} a été modifiée avec succès`,
-        });
-        
-        // Redirection vers la liste des salles
-        navigate("/salles");
-      } else {
-        toast.error("Erreur lors de la modification de la salle");
-      }
+      // Notification de succès
+      toast.success("Salle modifiée", {
+        description: `La salle ${salleData.nom} a été modifiée avec succès`,
+      });
+      
+      // Redirection vers la liste des salles
+      navigate("/salles");
+    } catch (error) {
+      console.error("Erreur lors de la modification de la salle:", error);
+      toast.error("Erreur de modification", {
+        description: "Une erreur s'est produite lors de la modification de la salle."
+      });
     }
   };
 
-  if (!salle) {
-    return <div>Chargement...</div>;
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Chargement...</div>;
   }
 
-  // On exclut l'ID pour obtenir seulement les champs modifiables
-  const { id: salleId, ...defaultValues } = salle;
+  if (!salle) {
+    return <div>Salle introuvable</div>;
+  }
 
   return (
     <div>
@@ -59,7 +82,13 @@ const ModifierSalle = () => {
 
       <SalleForm 
         onSubmit={handleSubmit} 
-        defaultValues={defaultValues}
+        defaultValues={{
+          nom: salle.nom,
+          capacite: salle.capacite,
+          adresse: salle.adresse,
+          equipement: salle.equipement,
+          status: salle.status
+        }}
         mode="update" 
       />
     </div>

@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import SallesDataTable from "@/components/salles/SallesDataTable";
 import axios from "axios";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
 
 interface Salle {
   id: string;
@@ -69,11 +72,19 @@ const Salles = () => {
 
   return (
     <div>
-      <div className="flex flex-col gap-2 mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Gestion des Salles</h1>
-        <p className="text-muted-foreground">
-          Consultez, ajoutez, modifiez ou supprimez des salles.
-        </p>
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight">Gestion des Salles</h1>
+          <p className="text-muted-foreground">
+            Consultez, ajoutez, modifiez ou supprimez des salles.
+          </p>
+        </div>
+        <Button asChild>
+          <Link to="/salles/ajouter">
+            <Plus className="mr-2 h-4 w-4" />
+            Ajouter une salle
+          </Link>
+        </Button>
       </div>
 
       <SallesDataTable data={salles} onDelete={handleDelete} />

@@ -2,51 +2,79 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import CoursForm from "@/components/cours/CoursForm";
-import { getCoursById, updateCours, Cours } from "@/data/database";
+import CoursForm, { CoursFormData } from "@/components/cours/CoursForm";
+import axios from "axios";
+
+interface Cours {
+  id: string;
+  matiere: string;
+  niveau: string;
+  salaireParHeure: number;
+  description?: string;
+}
 
 const ModifierCours = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [cours, setCours] = useState<Cours | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id) {
-      const coursData = getCoursById(id);
-      if (coursData) {
-        setCours(coursData);
-      } else {
-        toast.error("Cours introuvable");
-        navigate("/cours");
-      }
+      axios.get(`http://localhost:3000/api/cours/${id}`)
+        .then(response => {
+          setCours(response.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Erreur lors du chargement du cours:", err);
+          toast.error("Cours introuvable");
+          navigate("/cours");
+        });
     }
   }, [id, navigate]);
 
-  const handleSubmit = (coursData: Omit<Cours, "id">) => {
-    if (id) {
-      // Mise à jour du cours dans notre "base de données"
-      const updatedCours = updateCours(id, coursData);
+  const handleSubmit = async (coursData: CoursFormData) => {
+    try {
+      // On extrait professeurId et salleId car ils ne font pas partie
+      // du type Cours sur le backend
+      const { professeurId, salleId, ...coursToUpdate } = coursData;
       
-      if (updatedCours) {
-        // Notification de succès
-        toast.success("Cours modifié", {
-          description: `Le cours de ${updatedCours.matiere} (${updatedCours.niveau}) a été modifié avec succès`,
-        });
-        
-        // Redirection vers la liste des cours
-        navigate("/cours");
-      } else {
-        toast.error("Erreur lors de la modification du cours");
-      }
+      // Mise à jour du cours via l'API
+      await axios.put(`http://localhost:3000/api/cours/${id}`, coursToUpdate);
+      
+      // Notification de succès
+      toast.success("Cours modifié", {
+        description: `Le cours de ${coursData.matiere} (${coursData.niveau}) a été modifié avec succès`,
+      });
+      
+      // Redirection vers la liste des cours
+      navigate("/cours");
+    } catch (error) {
+      console.error("Erreur lors de la modification du cours:", error);
+      toast.error("Erreur de modification", {
+        description: "Une erreur s'est produite lors de la modification du cours."
+      });
     }
   };
 
-  if (!cours) {
-    return <div>Chargement...</div>;
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Chargement...</div>;
   }
 
-  // On exclut l'ID pour obtenir seulement les champs modifiables
-  const { id: coursId, ...defaultValues } = cours;
+  if (!cours) {
+    return <div>Cours introuvable</div>;
+  }
+
+  // Préparation des valeurs par défaut pour le formulaire
+  const defaultValues = {
+    matiere: cours.matiere,
+    niveau: cours.niveau,
+    salaireParHeure: cours.salaireParHeure,
+    description: cours.description || "",
+    professeurId: "", // Ces champs seront remplis par l'utilisateur
+    salleId: ""       // Ces champs seront remplis par l'utilisateur
+  };
 
   return (
     <div>

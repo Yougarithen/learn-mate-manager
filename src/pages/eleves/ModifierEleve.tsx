@@ -3,7 +3,20 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import EleveForm from "@/components/eleves/EleveForm";
-import { getEleveById, updateEleve, Eleve } from "@/data/database";
+import axios from "axios";
+
+interface Eleve {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  niveau: string;
+  telParents: string;
+  dateInscription: string;
+  adresse?: string;
+  notes?: string;
+}
 
 const ModifierEleve = () => {
   const { id } = useParams<{ id: string }>();
@@ -13,37 +26,40 @@ const ModifierEleve = () => {
 
   useEffect(() => {
     if (id) {
-      const foundEleve = getEleveById(id);
-      
-      if (foundEleve) {
-        setEleve(foundEleve);
-      } else {
-        toast.error("Élève non trouvé", {
-          description: "L'élève que vous essayez de modifier n'existe pas.",
+      axios.get(`http://localhost:3000/api/eleves/${id}`)
+        .then(response => {
+          setEleve(response.data);
+          setLoading(false);
+        })
+        .catch(err => {
+          console.error("Erreur lors du chargement de l'élève:", err);
+          toast.error("Élève non trouvé", {
+            description: "L'élève que vous essayez de modifier n'existe pas.",
+          });
+          navigate("/eleves");
         });
-        navigate("/eleves");
-      }
     }
     
     setLoading(false);
   }, [id, navigate]);
 
-  const handleSubmit = (eleveData: Omit<Eleve, "id">) => {
+  const handleSubmit = async (eleveData: Omit<Eleve, "id">) => {
     if (id) {
-      // Mise à jour de l'élève dans notre "base de données"
-      const updatedEleve = updateEleve(id, eleveData);
-      
-      if (updatedEleve) {
+      try {
+        // Mise à jour de l'élève via l'API
+        await axios.put(`http://localhost:3000/api/eleves/${id}`, eleveData);
+        
         // Notification de succès
         toast.success("Élève modifié", {
-          description: `${updatedEleve.prenom} ${updatedEleve.nom} a été modifié avec succès`,
+          description: `${eleveData.prenom} ${eleveData.nom} a été modifié avec succès`,
         });
         
         // Redirection vers la liste des élèves
         navigate("/eleves");
-      } else {
+      } catch (error) {
+        console.error("Erreur lors de la modification de l'élève:", error);
         toast.error("Erreur lors de la modification", {
-          description: "Une erreur est survenue lors de la modification de l'élève.",
+          description: "Une erreur est survenue lors de la modification de l'élève."
         });
       }
     }

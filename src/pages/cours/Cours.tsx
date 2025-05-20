@@ -1,28 +1,73 @@
 
 import { useState, useEffect } from "react";
-import { getCours, deleteCours, Cours as CoursType } from "@/data/database";
 import { toast } from "sonner";
 import CoursDataTable from "@/components/cours/CoursDataTable";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { Plus } from "lucide-react";
+import axios from "axios";
+
+interface Cours {
+  id: string;
+  matiere: string;
+  niveau: string;
+  salaireParHeure: number;
+  description?: string;
+}
 
 const Cours = () => {
-  const [cours, setCours] = useState<CoursType[]>([]);
+  const [cours, setCours] = useState<Cours[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchCours = () => {
+    setLoading(true);
+    axios.get("http://localhost:3000/api/cours")
+      .then(response => {
+        setCours(response.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Erreur lors du chargement des cours:", err);
+        setError("Impossible de charger la liste des cours");
+        setLoading(false);
+        toast.error("Erreur de chargement", {
+          description: "Impossible de récupérer la liste des cours"
+        });
+      });
+  };
 
   useEffect(() => {
-    // Chargement des données depuis notre "base de données"
-    setCours(getCours());
+    fetchCours();
   }, []);
 
   const handleDelete = (id: string) => {
-    const success = deleteCours(id);
-    if (success) {
-      setCours(getCours());
-      toast.success("Cours supprimé", {
-        description: "Le cours a été supprimé avec succès",
+    axios.delete(`http://localhost:3000/api/cours/${id}`)
+      .then(() => {
+        fetchCours();
+        toast.success("Cours supprimé", {
+          description: "Le cours a été supprimé avec succès",
+        });
+      })
+      .catch(err => {
+        console.error("Erreur lors de la suppression du cours:", err);
+        toast.error("Erreur de suppression", {
+          description: "Impossible de supprimer le cours"
+        });
       });
-    }
   };
+
+  if (loading) {
+    return <div className="flex justify-center items-center h-64">Chargement...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -34,7 +79,10 @@ const Cours = () => {
           </p>
         </div>
         <Button asChild>
-          <Link to="/cours/ajouter">Ajouter un cours</Link>
+          <Link to="/cours/ajouter">
+            <Plus className="mr-2 h-4 w-4" />
+            Ajouter un cours
+          </Link>
         </Button>
       </div>
 

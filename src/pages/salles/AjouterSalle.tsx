@@ -2,22 +2,37 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import SalleForm from "@/components/salles/SalleForm";
-import { addSalle, Salle } from "@/data/database";
+import axios from "axios";
+
+interface SalleFormData {
+  nom: string;
+  capacite: number;
+  adresse?: string;
+  equipement?: string;
+  status: "disponible" | "indisponible";
+}
 
 const AjouterSalle = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = (salleData: Omit<Salle, "id">) => {
-    // Ajout de la salle dans notre "base de données"
-    const newSalle = addSalle(salleData);
-    
-    // Notification de succès
-    toast.success("Salle ajoutée", {
-      description: `La salle ${newSalle.nom} a été ajoutée avec succès`,
-    });
-    
-    // Redirection vers la liste des salles
-    navigate("/salles");
+  const handleSubmit = async (salleData: SalleFormData) => {
+    try {
+      // Appel à l'API pour ajouter la salle
+      await axios.post('http://localhost:3000/api/salles', salleData);
+      
+      // Notification de succès
+      toast.success("Salle ajoutée", {
+        description: `La salle ${salleData.nom} a été ajoutée avec succès`,
+      });
+      
+      // Redirection vers la liste des salles
+      navigate("/salles");
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la salle:", error);
+      toast.error("Erreur lors de l'ajout", {
+        description: "Une erreur s'est produite lors de l'ajout de la salle. Veuillez réessayer."
+      });
+    }
   };
 
   return (

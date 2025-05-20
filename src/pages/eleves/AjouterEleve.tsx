@@ -2,22 +2,41 @@
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import EleveForm from "@/components/eleves/EleveForm";
-import { addEleve, Eleve } from "@/data/database";
+import axios from "axios";
+
+interface EleveFormData {
+  nom: string;
+  prenom: string;
+  email: string;
+  telephone: string;
+  niveau: string;
+  telParents: string;
+  dateInscription: string;
+  adresse?: string;
+  notes?: string;
+}
 
 const AjouterEleve = () => {
   const navigate = useNavigate();
 
-  const handleSubmit = (eleveData: Omit<Eleve, "id">) => {
-    // Ajout de l'élève dans notre "base de données"
-    const newEleve = addEleve(eleveData);
-    
-    // Notification de succès
-    toast.success("Élève ajouté", {
-      description: `${newEleve.prenom} ${newEleve.nom} a été ajouté avec succès`,
-    });
-    
-    // Redirection vers la liste des élèves
-    navigate("/eleves");
+  const handleSubmit = async (eleveData: EleveFormData) => {
+    try {
+      // Appel à l'API pour ajouter l'élève
+      await axios.post('http://localhost:3000/api/eleves', eleveData);
+      
+      // Notification de succès
+      toast.success("Élève ajouté", {
+        description: `${eleveData.prenom} ${eleveData.nom} a été ajouté avec succès`,
+      });
+      
+      // Redirection vers la liste des élèves
+      navigate("/eleves");
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de l'élève:", error);
+      toast.error("Erreur lors de l'ajout", {
+        description: "Une erreur s'est produite lors de l'ajout de l'élève. Veuillez réessayer."
+      });
+    }
   };
 
   return (
